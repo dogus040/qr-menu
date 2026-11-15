@@ -26,18 +26,21 @@ Het menu staat in twee tabellen:
 | Alerjen | Allergenen, met komma's (optioneel). |
 | Göster | `hayır` = tijdelijk verbergen (bijv. op). Leeg of `evet` = tonen. |
 
-### Google Sheet koppelen (eenmalig)
+### Google Sheet
 
-1. Maak een nieuwe Google Sheet met twee tabbladen: `menu` en `ayarlar`.
-2. Importeer `data/menu.csv` in tabblad `menu` en `data/ayarlar.csv` in `ayarlar` (Bestand → Importeren → Uploaden → *Huidig blad vervangen*).
-3. Bestand → Delen → **Publiceren op internet**. Kies tabblad `menu`, formaat **CSV**, klik Publiceren en kopieer de link. Herhaal voor `ayarlar`.
-4. Plak beide links in `js/config.js` (op github.com: open het bestand, potloodje, *Commit changes*).
+De kaart leest het menu uit de Google Sheet **QR Menü – Lokanta** (tabbladen `menu` en `ayarlar`). Pas de sheet aan, op de computer of in de Google Sheets-app op uw telefoon; gasten zien de wijziging zodra ze de kaart (opnieuw) openen.
 
-Daarna past u alleen nog de sheet aan; de kaart toont wijzigingen binnen ongeveer 5 minuten (Google ververst gepubliceerde sheets niet sneller). Is de sheet onbereikbaar, dan toont de kaart automatisch de bestanden in `data/`.
+Voorwaarden, anders valt de kaart terug op de bestanden in `data/`:
+
+- De sheet blijft gedeeld als **Iedereen met de link: Lezer**. Geef bewerkrechten alleen aan personen, nooit aan "iedereen met de link".
+- Hernoem of verwijder de tabbladen niet en laat de kolomkoppen in rij 1 staan. Kolommen verplaatsen mag.
+- De links staan in `js/config.js`. Een andere sheet koppelen: vervang daar de ID en de `gid`-nummers.
+
+Tip: zet af en toe een kopie van de sheet in `data/menu.csv` en `data/ayarlar.csv` (Bestand → Downloaden → CSV), zodat de reserve actueel blijft.
 
 ### Zonder Google Sheet
 
-Pas `data/menu.csv` direct aan op github.com. Na opslaan staat de wijziging binnen ongeveer een minuut online.
+Maak de links in `js/config.js` leeg (`""`) en pas `data/menu.csv` direct aan op github.com. Na opslaan staat de wijziging binnen ongeveer een minuut online.
 
 ## Lokaal bekijken
 
