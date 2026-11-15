@@ -26,6 +26,10 @@ Het menu staat in twee tabellen:
 | Alerjen | Allergenen, met komma's (optioneel). |
 | Göster | `hayır` = tijdelijk verbergen (bijv. op). Leeg of `evet` = tonen. |
 
+### Achtergrond
+
+Vijf achtergronden: `kagit`, `kahve`, `cini`, `kraft`, `espresso`. Bekijken zonder iets te veranderen: zet `?bg=naam` achter de link, bijv. `https://dogus040.github.io/qr-menu/?bg=kahve`. Vast instellen: `arkaPlan` in `js/config.js`, of een regel `Arka Plan` met de naam in het tabblad `ayarlar` (die gaat voor).
+
 ### Google Sheet
 
 De kaart leest het menu uit de Google Sheet **QR Menü – Bi Mola** (tabbladen `menu` en `ayarlar`). Pas de sheet aan, op de computer of in de Google Sheets-app op uw telefoon; gasten zien de wijziging zodra ze de kaart (opnieuw) openen.

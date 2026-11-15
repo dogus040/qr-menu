@@ -146,6 +146,9 @@
     .then(function (result) {
       var categories = result[0];
       var settings = result[1];
+      if (settings.arkaplan && window.MenuTheme && !window.MenuTheme.lockedByUrl) {
+        window.MenuTheme.apply(settings.arkaplan);
+      }
       renderHeader(settings);
       renderNav(categories);
       renderMenu(categories, settings);

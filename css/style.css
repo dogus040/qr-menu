@@ -8,6 +8,11 @@
   --accent: #8a2c1c;
   --gold: #a8844f;
   --line: #d6c4a5;
+  --nav-bg: rgba(251, 247, 239, 0.96);
+  --pattern: none;
+  --pattern-size: auto;
+  --tag-spicy: #b2401f;
+  --tag-veg: #5b7a3a;
   --serif-display: "Playfair Display", Georgia, "Times New Roman", serif;
   --serif-body: "Lora", Georgia, "Times New Roman", serif;
 }
@@ -31,7 +36,9 @@ body {
   max-width: 680px;
   margin: 0 auto;
   min-height: 100vh;
-  background: var(--card);
+  background-color: var(--card);
+  background-image: var(--pattern);
+  background-size: var(--pattern-size);
   box-shadow: 0 0 40px rgba(60, 40, 20, 0.12);
   padding: 0 0 calc(32px + env(safe-area-inset-bottom));
   position: relative;
@@ -104,7 +111,7 @@ body {
   gap: 4px;
   overflow-x: auto;
   scrollbar-width: none;
-  background: rgba(251, 247, 239, 0.96);
+  background: var(--nav-bg);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--line);
@@ -226,9 +233,9 @@ body {
 
 .tag { color: var(--gold); }
 .tag::before { content: "◆ "; font-size: 8px; vertical-align: 2px; }
-.tag-acili { color: #b2401f; }
+.tag-acili { color: var(--tag-spicy); }
 .tag-vejetaryen,
-.tag-vegan { color: #5b7a3a; }
+.tag-vegan { color: var(--tag-veg); }
 .tag-sefinonerisi,
 .tag-yeni { color: var(--accent); }
 
@@ -263,6 +270,75 @@ body {
   .item-name { font-size: 17px; }
   .item-desc { padding-right: 0; }
 }
+
+/* ------------------------------------------------------------------------
+   Achtergronden. Kiezen met de instelling "Arka Plan" in de sheet,
+   met arkaPlan in js/config.js, of om te testen met ?bg=naam in de link.
+   kagit (standaard) · kahve · cini · kraft · espresso
+   ------------------------------------------------------------------------ */
+
+/* Kahve: warme lattekleur met fijne koffiebonen */
+html[data-bg="kahve"] {
+  --paper: #e8d9c4;
+  --paper-deep: #d9c3a5;
+  --card: #f7efe3;
+  --ink: #2e1f14;
+  --ink-soft: #6e5642;
+  --accent: #6b3a1f;
+  --gold: #a87a4c;
+  --line: #d9c2a2;
+  --nav-bg: rgba(247, 239, 227, 0.96);
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%236b3a1f' stroke-width='1.5' opacity='0.11'%3E%3Cg transform='translate(34 38) rotate(-28)'%3E%3Cellipse rx='10' ry='14'/%3E%3Cpath d='M0-14c-5 7 5 21 0 28'/%3E%3C/g%3E%3Cg transform='translate(118 112) rotate(38)'%3E%3Cellipse rx='10' ry='14'/%3E%3Cpath d='M0-14c-5 7 5 21 0 28'/%3E%3C/g%3E%3Cg transform='translate(122 34) rotate(70) scale(.7)'%3E%3Cellipse rx='10' ry='14'/%3E%3Cpath d='M0-14c-5 7 5 21 0 28'/%3E%3C/g%3E%3Cg transform='translate(40 128) rotate(-62) scale(.7)'%3E%3Cellipse rx='10' ry='14'/%3E%3Cpath d='M0-14c-5 7 5 21 0 28'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Çini: Turks tegelpatroon in kobaltblauw */
+html[data-bg="cini"] {
+  --paper: #dfe7ef;
+  --paper-deep: #c9d6e3;
+  --card: #fbf9f4;
+  --ink: #1d2733;
+  --ink-soft: #55606d;
+  --accent: #1f4f8a;
+  --gold: #2a8a8a;
+  --line: #c9d4df;
+  --nav-bg: rgba(251, 249, 244, 0.96);
+  --tag-spicy: #b5452b;
+  --tag-veg: #2a7a5a;
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%231f4f8a' stroke-width='1' opacity='0.09'%3E%3Crect x='24' y='24' width='36' height='36'/%3E%3Crect x='24' y='24' width='36' height='36' transform='rotate(45 42 42)'/%3E%3Ccircle cx='42' cy='42' r='7'/%3E%3Cpath d='M0 0L24 24M84 0L60 24M0 84L24 60M84 84L60 60M42 0v10M42 84v-10M0 42h10M84 42h-10'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Kraft: bruin pakpapier met korrel */
+html[data-bg="kraft"] {
+  --paper: #b8956a;
+  --paper-deep: #a17f56;
+  --card: #d4b88f;
+  --ink: #26190c;
+  --ink-soft: #553d24;
+  --accent: #7a2814;
+  --gold: #6b4a28;
+  --line: #a88661;
+  --nav-bg: rgba(212, 184, 143, 0.97);
+  --tag-spicy: #8f2a12;
+  --tag-veg: #3f5a22;
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0 0.1 0 0 0 0.28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Espresso: donker, met karamel-accent (sfeervol, voor 's avonds) */
+html[data-bg="espresso"] {
+  --paper: #18110d;
+  --paper-deep: #0f0a07;
+  --card: #251a14;
+  --ink: #f3e8d8;
+  --ink-soft: #c2ae95;
+  --accent: #e3a35a;
+  --gold: #c9a066;
+  --line: #4b3a2e;
+  --nav-bg: rgba(37, 26, 20, 0.96);
+  --tag-spicy: #f08a62;
+  --tag-veg: #a9c77f;
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23e3a35a' stroke-width='1.5' opacity='0.06'%3E%3Cg transform='translate(34 38) rotate(-28)'%3E%3Cellipse rx='10' ry='14'/%3E%3Cpath d='M0-14c-5 7 5 21 0 28'/%3E%3C/g%3E%3Cg transform='translate(118 112) rotate(38)'%3E%3Cellipse rx='10' ry='14'/%3E%3Cpath d='M0-14c-5 7 5 21 0 28'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+html[data-bg="espresso"] .page { box-shadow: 0 0 40px rgba(0, 0, 0, 0.5); }
 
 @media print {
   body { background: none; }
