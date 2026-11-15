@@ -6,6 +6,8 @@
 // Sheet: https://docs.google.com/spreadsheets/d/1UEMbSL-tcQcfzTUzC9VMaLQAlipFxiKWa44cfthKvdg/edit
 // gid = het nummer achter "#gid=" in de adresbalk wanneer het tabblad open staat.
 window.MENU_CONFIG = {
+  // Adres waar de QR-code naartoe wijst.
+  menuUrl: "https://bimola.pages.dev/",
   // Achtergrond: kagit, kahve, cini, kraft of espresso.
   // Een regel "Arka Plan" in het tabblad ayarlar van de sheet gaat hiervoor.
   arkaPlan: "kraft",

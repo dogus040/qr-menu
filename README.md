@@ -2,8 +2,9 @@
 
 Een Turkse digitale menukaart in klassieke stijl voor Bi Mola, een kafe (kahve, tatlı, atıştırmalıklar, içecekler), voor achter een QR-code op tafel. Gratis online via GitHub Pages, aan te passen via Google Sheets.
 
-- Menukaart: `https://dogus040.github.io/qr-menu/`
-- QR-kaartjes printen: `https://dogus040.github.io/qr-menu/qr.html`
+- Menukaart (QR-adres): `https://bimola.pages.dev/` (Cloudflare Pages, bijgewerkt bij elke push naar main)
+- Reserve-adres: `https://dogus040.github.io/qr-menu/`
+- QR-kaartjes printen: `https://bimola.pages.dev/qr`
 
 ## Menu aanpassen
 

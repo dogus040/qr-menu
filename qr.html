@@ -73,8 +73,10 @@
       var sheet = document.getElementById("sheet");
       var settings = {};
 
-      // Standaard: de map waarin deze pagina staat (dus de menukaart zelf).
-      urlInput.value = location.href.replace(/qr\.html.*$/, "").replace(/[?#].*$/, "");
+      // Standaard: menuUrl uit config.js, anders de map waarin deze pagina staat.
+      // (Cloudflare laat ".html" weg, dus zowel /qr als /qr.html afknippen.)
+      var cfg = window.MENU_CONFIG || {};
+      urlInput.value = cfg.menuUrl || (location.origin + location.pathname.replace(/qr(\.html)?$/, ""));
 
       function drawQr(canvas, text, scale) {
         var qr = qrcode(0, "M");
