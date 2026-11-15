@@ -1,35 +1,23 @@
 Kategori,Ürün,Açıklama,Fiyat,Etiket,Alerjen,Göster
-Çorbalar,,Tüm çorbalarımız günlük olarak hazırlanır.,,,,
-Çorbalar,Mercimek Çorbası,"Kırmızı mercimek, limon ve kızarmış ekmek ile",120,Vejetaryen,Gluten,evet
-Çorbalar,Ezogelin Çorbası,"Bulgur, nane ve pul biber",130,"Vejetaryen, Acılı",Gluten,evet
-Çorbalar,İşkembe Çorbası,Sarımsaklı sirke ile,180,,Süt,evet
-Soğuk Mezeler,Humus,"Nohut, tahin, zeytinyağı",110,Vejetaryen,Susam,evet
-Soğuk Mezeler,Haydari,"Süzme yoğurt, nane, sarımsak",100,Vejetaryen,Süt,evet
-Soğuk Mezeler,Acılı Ezme,"Domates, biber, nar ekşisi",95,"Vejetaryen, Acılı",,evet
-Soğuk Mezeler,Babagannuş,"Közlenmiş patlıcan, tahin",110,Vejetaryen,Susam,evet
-Soğuk Mezeler,Meze Tabağı,Şefin seçtiği beş çeşit meze,320,Şefin Önerisi,"Süt, Susam",evet
-Ara Sıcaklar,Sigara Böreği,"Beyaz peynir ve maydanoz, 6 adet",150,Vejetaryen,"Gluten, Süt",evet
-Ara Sıcaklar,İçli Köfte,"Bulgur, kıyma, ceviz, 2 adet",170,,"Gluten, Kuruyemiş",evet
-Ara Sıcaklar,Kalamar Tava,Tarator sos ile,280,,"Gluten, Yumuşakça",evet
-Izgaralar,,Tüm ızgaralar pilav ve mevsim salatası ile servis edilir.,,,,
-Izgaralar,Adana Kebap,"Zırh kıyması, közlenmiş domates ve biber",420,"Acılı, Şefin Önerisi",Gluten,evet
-Izgaralar,Urfa Kebap,"Zırh kıyması, acısız",420,,Gluten,evet
-Izgaralar,Kuzu Şiş,Marine edilmiş kuzu but,520,,,evet
-Izgaralar,Tavuk Şiş,"Yoğurtlu marine, sumaklı soğan",360,,Süt,evet
-Izgaralar,İskender,"Döner, tereyağı, domates sos, yoğurt",450,,"Gluten, Süt",evet
-Izgaralar,Karışık Izgara,"Adana, kuzu şiş, tavuk şiş, pirzola (2 kişilik)",1100,Yeni,"Gluten, Süt",evet
-Pide ve Lahmacun,Lahmacun,"İnce hamur, kıyma, maydanoz, limon",110,,Gluten,evet
-Pide ve Lahmacun,Kıymalı Pide,,260,,Gluten,evet
-Pide ve Lahmacun,Kaşarlı Pide,,240,Vejetaryen,"Gluten, Süt",evet
-Pide ve Lahmacun,Kuşbaşılı Pide,,300,,Gluten,evet
-Tatlılar,Fıstıklı Baklava,"Antep fıstığı, 4 dilim",260,,"Gluten, Süt, Kuruyemiş",evet
-Tatlılar,Künefe,"Hatay peyniri, fıstık",240,Şefin Önerisi,"Gluten, Süt, Kuruyemiş",evet
-Tatlılar,Fırın Sütlaç,,140,Vejetaryen,Süt,evet
-Tatlılar,Kazandibi,,150,,Süt,hayır
-Sıcak İçecekler,Çay,,30,,,evet
-Sıcak İçecekler,Türk Kahvesi,Lokum ile,90,,,evet
-Sıcak İçecekler,Sahlep,Tarçın ile,120,,Süt,evet
-Soğuk İçecekler,Ayran,,50,,Süt,evet
-Soğuk İçecekler,Şalgam,Acılı veya acısız,60,,,evet
-Soğuk İçecekler,Kola,33 cl,70,,,evet
-Soğuk İçecekler,Su,50 cl,25,,,evet
+Kahveler,Türk Kahvesi,Lokum ile,60,,,evet
+Kahveler,Espresso,,60,,,evet
+Kahveler,Americano,,75,,,evet
+Kahveler,Cappuccino,,85,,Süt,evet
+Kahveler,Latte,,85,,Süt,evet
+Kahveler,Filtre Kahve,,70,,,evet
+Kahveler,Buzlu Latte,,95,Yeni,Süt,evet
+Sıcak İçecekler,Çay,,20,,,evet
+Sıcak İçecekler,Sıcak Çikolata,,85,,Süt,evet
+Tatlılar,,Günün tatlıları için lütfen tezgaha danışın.,,,,
+Tatlılar,Baklava,,120,,"Gluten, Süt, Kuruyemiş",evet
+Tatlılar,Sütlaç,,90,,Süt,evet
+Tatlılar,Cheesecake,,130,,"Gluten, Süt, Yumurta",evet
+Tatlılar,Brownie,,110,,"Gluten, Süt, Yumurta",evet
+Atıştırmalıklar,Snickers,,45,,"Yer fıstığı, Süt",evet
+Atıştırmalıklar,Oreo,,40,,"Gluten, Soya",evet
+Atıştırmalıklar,Mentos,,30,,,evet
+Atıştırmalıklar,Olips,,25,,,evet
+Soğuk İçecekler,Capri-Sun,,35,,,evet
+Soğuk İçecekler,Cappy,Meyve suyu,40,,,evet
+Soğuk İçecekler,Didi,Soğuk çay,40,,,evet
+Soğuk İçecekler,Su,,15,,,evet
