@@ -1,6 +1,6 @@
 # QR-menukaart
 
-Een Turkse digitale menukaart in klassieke stijl voor een kafe (kahve, tatlı, atıştırmalıklar, içecekler), voor achter een QR-code op tafel. Gratis online via GitHub Pages, aan te passen via Google Sheets.
+Een Turkse digitale menukaart in klassieke stijl voor Bi Mola, een kafe (kahve, tatlı, atıştırmalıklar, içecekler), voor achter een QR-code op tafel. Gratis online via GitHub Pages, aan te passen via Google Sheets.
 
 - Menukaart: `https://dogus040.github.io/qr-menu/`
 - QR-kaartjes printen: `https://dogus040.github.io/qr-menu/qr.html`
@@ -28,7 +28,7 @@ Het menu staat in twee tabellen:
 
 ### Google Sheet
 
-De kaart leest het menu uit de Google Sheet **QR Menü – Kafe** (tabbladen `menu` en `ayarlar`). Pas de sheet aan, op de computer of in de Google Sheets-app op uw telefoon; gasten zien de wijziging zodra ze de kaart (opnieuw) openen.
+De kaart leest het menu uit de Google Sheet **QR Menü – Bi Mola** (tabbladen `menu` en `ayarlar`). Pas de sheet aan, op de computer of in de Google Sheets-app op uw telefoon; gasten zien de wijziging zodra ze de kaart (opnieuw) openen.
 
 Voorwaarden, anders valt de kaart terug op de bestanden in `data/`:
 
