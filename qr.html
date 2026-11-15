@@ -8,35 +8,40 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <!-- Zelfde kleuren en achtergrond als de menukaart (css/style.css + js/theme.js). -->
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js"></script>
+  <script src="js/theme.js"></script>
   <style>
-    :root { --ink: #2b2118; --soft: #6f5f4d; --accent: #8a2c1c; --gold: #a8844f; --line: #d6c4a5; --card: #fbf7ef; }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #ece4d6; color: var(--ink); font-family: "Lora", Georgia, serif; }
+    body { font-size: 16px; }
     .tools { max-width: 760px; margin: 0 auto; padding: 24px 16px 8px; display: grid; gap: 12px; }
     .tools h1 { font-family: "Playfair Display", Georgia, serif; font-weight: 600; font-size: 22px; margin: 0; }
-    .tools p { margin: 0; color: var(--soft); font-size: 14px; }
+    .tools p { margin: 0; color: var(--ink-soft); font-size: 14px; }
     .tools label { display: grid; gap: 4px; font-size: 14px; }
-    .tools input { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; width: 100%; }
+    .tools label.check { display: flex; align-items: center; gap: 8px; }
+    .tools input[type="url"], .tools input[type="text"] { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: #222; width: 100%; }
     .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
     .buttons button { font: inherit; font-size: 15px; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
     .buttons button.secondary { background: transparent; color: var(--accent); }
 
     .sheet { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; max-width: 760px; margin: 16px auto 40px; padding: 0 16px; }
-    .card { background: var(--card); text-align: center; padding: 28px 22px 24px; position: relative; aspect-ratio: 105 / 148; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .card { background-color: var(--card); background-image: var(--pattern); background-size: var(--pattern-size); -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: 0 2px 14px rgba(40, 25, 10, 0.18); text-align: center; padding: 28px 22px 24px; position: relative; aspect-ratio: 105 / 148; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .card::before { content: ""; position: absolute; inset: 8px; border: 1px solid var(--line); outline: 1px solid var(--line); outline-offset: 3px; pointer-events: none; }
     .card .orn { color: var(--gold); font-size: 22px; line-height: 1; }
     .card .name { font-family: "Playfair Display", Georgia, serif; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; font-size: 26px; margin: 8px 0 2px; }
-    .card .sub { font-style: italic; color: var(--soft); font-size: 14px; margin: 0 0 14px; }
+    .card .sub { font-style: italic; color: var(--ink-soft); font-size: 14px; margin: 0 0 14px; }
     .card canvas { width: 62%; height: auto; image-rendering: pixelated; }
     .card .cta { font-family: "Playfair Display", Georgia, serif; color: var(--accent); font-size: 18px; margin: 14px 0 0; }
-    .card .table { font-size: 13px; color: var(--soft); margin-top: 6px; min-height: 1em; }
+    .card .table { font-size: 13px; color: var(--ink-soft); margin-top: 6px; min-height: 1em; }
 
     @media print {
       @page { size: A4; margin: 8mm; }
       body { background: none; }
       .tools { display: none; }
       .sheet { grid-template-columns: 1fr 1fr; gap: 6mm; max-width: none; margin: 0; padding: 0; }
-      .card { break-inside: avoid; border: 0.2mm dashed #bbb; }
+      .card { break-inside: avoid; border: 0.2mm dashed #bbb; box-shadow: none; }
+      /* Printen op echt kraftpapier: geen achtergrondkleur meeprinten. */
+      body.no-print-bg .card { background: none; }
     }
   </style>
 </head>
@@ -53,6 +58,7 @@
     <label>Tafelnummer (optioneel, bijv. "Masa 5")
       <input id="table" type="text" value="">
     </label>
+    <label class="check"><input id="printbg" type="checkbox" checked> Achtergrond meeprinten (uitzetten als je op echt kraftpapier print)</label>
     <div class="buttons">
       <button id="print" type="button">Afdrukken</button>
       <button id="download" type="button" class="secondary">QR downloaden (PNG)</button>
@@ -62,7 +68,6 @@
   <main id="sheet" class="sheet"></main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-  <script src="js/config.js"></script>
   <script src="js/data.js"></script>
   <script>
     (function () {
@@ -78,7 +83,25 @@
       var cfg = window.MENU_CONFIG || {};
       urlInput.value = cfg.menuUrl || (location.origin + location.pathname.replace(/qr(\.html)?$/, ""));
 
-      function drawQr(canvas, text, scale) {
+      function cssVar(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      }
+
+      function luminance(hex) {
+        var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+        if (!m) return 1;
+        return (0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16)) / 255;
+      }
+
+      // QR-kleuren uit het thema, altijd donker op licht (scanners lezen omgekeerd slecht).
+      function qrColors() {
+        var card = cssVar("--card") || "#fbf7ef";
+        var ink = cssVar("--ink") || "#2b2118";
+        return luminance(card) >= luminance(ink) ? { light: card, dark: ink } : { light: ink, dark: card };
+      }
+
+      function drawQr(canvas, text, scale, colors) {
+        colors = colors || qrColors();
         var qr = qrcode(0, "M");
         qr.addData(text);
         qr.make();
@@ -88,9 +111,9 @@
         canvas.width = size;
         canvas.height = size;
         var ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#fbf7ef";
+        ctx.fillStyle = colors.light;
         ctx.fillRect(0, 0, size, size);
-        ctx.fillStyle = "#2b2118";
+        ctx.fillStyle = colors.dark;
         for (var r = 0; r < count; r++) {
           for (var c = 0; c < count; c++) {
             if (qr.isDark(r, c)) ctx.fillRect((c + margin) * scale, (r + margin) * scale, scale, scale);
@@ -126,10 +149,15 @@
       urlInput.addEventListener("input", render);
       ctaInput.addEventListener("input", render);
       tableInput.addEventListener("input", render);
+      var printBg = document.getElementById("printbg");
+      printBg.addEventListener("change", function () {
+        document.body.classList.toggle("no-print-bg", !printBg.checked);
+      });
       document.getElementById("print").addEventListener("click", function () { window.print(); });
       document.getElementById("download").addEventListener("click", function () {
+        // Losse QR-afbeelding: neutraal zwart op wit, overal bruikbaar.
         var canvas = document.createElement("canvas");
-        drawQr(canvas, urlInput.value.trim(), 24);
+        drawQr(canvas, urlInput.value.trim(), 24, { light: "#ffffff", dark: "#000000" });
         var a = document.createElement("a");
         a.download = "menu-qr.png";
         a.href = canvas.toDataURL("image/png");
@@ -137,7 +165,11 @@
       });
 
       window.MenuData.loadSettings()
-        .then(function (s) { settings = s; })
+        .then(function (s) {
+          settings = s;
+          // Zelfde achtergrond als de menukaart ("Arka Plan" in de sheet gaat voor).
+          if (s.arkaplan && window.MenuTheme && !window.MenuTheme.lockedByUrl) window.MenuTheme.apply(s.arkaplan);
+        })
         .catch(function () {})
         .then(render);
     })();
