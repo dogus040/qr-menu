@@ -1,0 +1,338 @@
+{
+  "settings": [
+    {
+      "key": "address",
+      "value": "Örnek Cadde No: 1, İstanbul"
+    },
+    {
+      "key": "currency",
+      "value": "₺"
+    },
+    {
+      "key": "footer_note",
+      "value": "Fiyatlarımıza KDV dahildir. Alerjen bilgisi için lütfen personelimize danışın."
+    },
+    {
+      "key": "hours",
+      "value": "Her gün 09:00 - 23:00"
+    },
+    {
+      "key": "instagram",
+      "value": ""
+    },
+    {
+      "key": "phone",
+      "value": "+90 212 000 00 00"
+    },
+    {
+      "key": "restaurant_name",
+      "value": "Bi Mola"
+    },
+    {
+      "key": "subtitle",
+      "value": "Şehrin telaşına kısa bi mola"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Sıcak Kahveler",
+      "note": "",
+      "visible": 1,
+      "position": 10,
+      "deleted_at": null
+    },
+    {
+      "id": 2,
+      "name": "Soğuk Kahveler",
+      "note": "",
+      "visible": 1,
+      "position": 20,
+      "deleted_at": null
+    },
+    {
+      "id": 3,
+      "name": "Soğuk İçecekler",
+      "note": "",
+      "visible": 1,
+      "position": 30,
+      "deleted_at": null
+    },
+    {
+      "id": 4,
+      "name": "Çay",
+      "note": "",
+      "visible": 1,
+      "position": 40,
+      "deleted_at": null
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "category_id": 1,
+      "name": "Pumpkin Spice Latte",
+      "description": "",
+      "price": null,
+      "price_small": 18000,
+      "price_large": 21000,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 10,
+      "deleted_at": null
+    },
+    {
+      "id": 2,
+      "category_id": 1,
+      "name": "Vanilya Latte",
+      "description": "",
+      "price": null,
+      "price_small": 18000,
+      "price_large": 21000,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 20,
+      "deleted_at": null
+    },
+    {
+      "id": 3,
+      "category_id": 1,
+      "name": "Caramel Latte",
+      "description": "",
+      "price": null,
+      "price_small": 18000,
+      "price_large": 21000,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 30,
+      "deleted_at": null
+    },
+    {
+      "id": 4,
+      "category_id": 1,
+      "name": "White Chocolate",
+      "description": "",
+      "price": null,
+      "price_small": 18000,
+      "price_large": 21000,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 40,
+      "deleted_at": null
+    },
+    {
+      "id": 5,
+      "category_id": 1,
+      "name": "Hazelnut Latte",
+      "description": "",
+      "price": null,
+      "price_small": 18000,
+      "price_large": 21000,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 50,
+      "deleted_at": null
+    },
+    {
+      "id": 6,
+      "category_id": 1,
+      "name": "Chai Tea Latte",
+      "description": "",
+      "price": null,
+      "price_small": 18000,
+      "price_large": 21000,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 60,
+      "deleted_at": null
+    },
+    {
+      "id": 7,
+      "category_id": 1,
+      "name": "Mocha",
+      "description": "",
+      "price": null,
+      "price_small": 18000,
+      "price_large": 21000,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 70,
+      "deleted_at": null
+    },
+    {
+      "id": 8,
+      "category_id": 1,
+      "name": "Toffee Nut Latte",
+      "description": "",
+      "price": null,
+      "price_small": 18000,
+      "price_large": 21000,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 80,
+      "deleted_at": null
+    },
+    {
+      "id": 9,
+      "category_id": 2,
+      "name": "Iced Pumpkin Latte",
+      "description": "",
+      "price": 22000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 10,
+      "deleted_at": null
+    },
+    {
+      "id": 10,
+      "category_id": 2,
+      "name": "Iced Vanilya Latte",
+      "description": "",
+      "price": 22000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 20,
+      "deleted_at": null
+    },
+    {
+      "id": 11,
+      "category_id": 2,
+      "name": "Iced Caramel Latte",
+      "description": "",
+      "price": 22000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 30,
+      "deleted_at": null
+    },
+    {
+      "id": 12,
+      "category_id": 2,
+      "name": "Iced Mocha",
+      "description": "",
+      "price": 22000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 40,
+      "deleted_at": null
+    },
+    {
+      "id": 13,
+      "category_id": 2,
+      "name": "Iced Toffee Nut",
+      "description": "",
+      "price": 22000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[\"Süt\"]",
+      "position": 50,
+      "deleted_at": null
+    },
+    {
+      "id": 14,
+      "category_id": 3,
+      "name": "Green Apple Lemonade",
+      "description": "",
+      "price": 23000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[]",
+      "position": 10,
+      "deleted_at": null
+    },
+    {
+      "id": 15,
+      "category_id": 3,
+      "name": "Berry Hibiscus",
+      "description": "",
+      "price": 24000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[]",
+      "position": 20,
+      "deleted_at": null
+    },
+    {
+      "id": 16,
+      "category_id": 3,
+      "name": "Cool Lime",
+      "description": "",
+      "price": 24000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[]",
+      "position": 30,
+      "deleted_at": null
+    },
+    {
+      "id": 17,
+      "category_id": 4,
+      "name": "Çay",
+      "description": "",
+      "price": 3000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[]",
+      "position": 10,
+      "deleted_at": null
+    },
+    {
+      "id": 18,
+      "category_id": 4,
+      "name": "Büyük Çay",
+      "description": "",
+      "price": 6000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[]",
+      "position": 20,
+      "deleted_at": null
+    },
+    {
+      "id": 19,
+      "category_id": 4,
+      "name": "Karton Çay",
+      "description": "Karton bardakta",
+      "price": 5000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[]",
+      "position": 30,
+      "deleted_at": null
+    }
+  ]
+}

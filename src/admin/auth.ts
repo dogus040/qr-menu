@@ -138,7 +138,8 @@ class D1Directory implements Directory {
 
 export function directory(env: AdminEnv): Directory | null {
   if (env.ACCESS_ACCOUNT_ID && env.ACCESS_GROUP_ID && env.CF_API_TOKEN) {
-    return new AccessGroupDirectory(env.ACCESS_ACCOUNT_ID, env.ACCESS_GROUP_ID, env.CF_API_TOKEN);
+    // trim: een geplakt token bevat soms een spatie of regeleinde.
+    return new AccessGroupDirectory(env.ACCESS_ACCOUNT_ID, env.ACCESS_GROUP_ID, env.CF_API_TOKEN.trim());
   }
   if (env.ACCESS_DIRECTORY === "d1") return new D1Directory(env.DB);
   return null; // alleen eigenaar(s)

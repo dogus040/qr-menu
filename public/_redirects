@@ -1,3 +1,5 @@
 # Oude adressen blijven werken.
 /index.html  /    301
 /qr.html     /qr  301
+/yonetim     https://bimola-admin.oprime75.workers.dev/  301
+/yonetim.html  https://bimola-admin.oprime75.workers.dev/  301

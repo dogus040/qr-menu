@@ -18,18 +18,18 @@
     {
       "binding": "DB",
       "database_name": "bimola",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "ef2c2e1c-33e3-4587-929d-405cd02819d6",
       "migrations_dir": "migrations"
     }
   ],
   "vars": {
     // Teamdomein van Cloudflare Zero Trust, bijv. "bimola.cloudflareaccess.com".
-    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_TEAM_DOMAIN": "tiny-smoke-594d.cloudflareaccess.com",
     // "Application Audience (AUD) Tag" van de Access-applicatie.
-    "ACCESS_AUD": "",
+    "ACCESS_AUD": "aa202ede8b72a2e77f03644d9db8d415b5064784a0edd594f7b1165f2e92e079",
     // Account en Access-groep "Bi Mola beheerders" (witte lijst).
-    "ACCESS_ACCOUNT_ID": "",
-    "ACCESS_GROUP_ID": "",
+    "ACCESS_ACCOUNT_ID": "9344f92aee27addf23df28b2b20c91af",
+    "ACCESS_GROUP_ID": "b476219f-83ce-4827-9887-7ce586d4173b",
     "PUBLIC_MENU_URL": "https://bimola.pages.dev/"
   },
   "observability": { "enabled": true }

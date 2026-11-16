@@ -13,5 +13,5 @@ PUBLIC_MENU_URL = "https://bimola.pages.dev/"
 [[d1_databases]]
 binding = "DB"
 database_name = "bimola"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "ef2c2e1c-33e3-4587-929d-405cd02819d6"
 migrations_dir = "migrations"
