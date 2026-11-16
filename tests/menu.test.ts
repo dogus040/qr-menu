@@ -2,6 +2,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { onRequestGet as menuPage } from "../functions/index";
+import { onRequest as qrGone } from "../functions/qr";
 import { seed } from "./helpers";
 
 const fakeAssets = (snapshot: unknown | null) =>
@@ -101,5 +102,11 @@ describe("menukaart", () => {
     expect(ok.html).toContain("Reserve");
     const none = await render(undefined, broken, null);
     expect(none.res.status).toBe(503);
+  });
+
+  it("/qr is weg: 404 zonder caching (QR-kaartjes staan in de beheerpagina)", async () => {
+    const res = await qrGone({} as Parameters<typeof qrGone>[0]);
+    expect(res.status).toBe(404);
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
   });
 });

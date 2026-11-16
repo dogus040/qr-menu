@@ -17,6 +17,7 @@ Het Pages-project `bimola` **nooit verwijderen**: de geprinte QR-codes wijzen er
 Gast ──► bimola.pages.dev ──(alleen lezen)──► D1 ◄──(lezen + schrijven)── admin ◄── Cloudflare Access ◄── Dogus / Emre
 ```
 
+- **`/qr` op de menukaart** bestaat niet meer: `functions/qr.ts` geeft 404 zonder caching, zodat een oude kopie uit de Cloudflare-cache niet terugkomt.
 - **Menukaart**: `functions/index.ts` bouwt de pagina server-side uit D1 (`src/menu/render.ts`). Werkt zonder JavaScript. Is D1 onbereikbaar, dan toont hij `public/snapshot.json` (nachtelijke kopie).
 - **Beheer**: `src/admin/` (Hono). Elke aanvraag moet een geldig Cloudflare Access-token hebben (handtekening, app, uitgever, geldigheid) én een e-mailadres op de witte lijst. Schrijfacties alleen als JSON vanaf de eigen pagina (CSRF-controle).
 - **QR-kaartjes**: tabblad QR in de beheerpagina (`admin-public/app.js`, `admin-public/qr.css`). De link in de QR-code is `PUBLIC_MENU_URL`; alleen de eigenaar (`OWNER_EMAILS`) kan hem voor een afdruk wijzigen (niet opgeslagen). Afdrukken toont alleen de kaartjes. De themakleuren in `qr.css` zijn een kopie uit `public/css/style.css` (`tests/themes.test.ts` bewaakt dat ze gelijk blijven). Het QR-script komt van cdnjs, vastgepind met een SRI-hash; de CSP staat alleen dat ene bestand toe.
