@@ -1,8 +1,8 @@
-// Beheerpagina: Worker "bimola-admin", volledig achter Cloudflare Access.
+// Beheerpagina: Worker "admin" (https://admin.bimola.workers.dev), volledig achter Cloudflare Access.
 // Geheimen (niet in deze repo): OWNER_EMAILS, CF_API_TOKEN  →  wrangler secret put … -c wrangler.admin.jsonc
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "bimola-admin",
+  "name": "admin",
   "main": "src/admin/index.ts",
   "compatibility_date": "2026-11-01",
   "workers_dev": true,

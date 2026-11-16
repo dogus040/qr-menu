@@ -1,4 +1,4 @@
-// Beheer-Worker (bimola-admin): JSON-API + beheerpagina, volledig achter Cloudflare Access.
+// Beheer-Worker (admin, https://admin.bimola.workers.dev): JSON-API + beheerpagina, volledig achter Cloudflare Access.
 import { Hono, type Context } from "hono";
 import { HttpError, type AdminEnv } from "./env";
 import { EMAIL_RE, MAX_ADMINS, allowedEmails, clearDirectoryCache, directory, isAllowed, ownerEmails, verifyAccess } from "./auth";

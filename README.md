@@ -6,7 +6,7 @@ Turkse digitale menukaart (kraft-stijl) voor Bi Mola, met een beheerpagina voor 
 |---|---|---|
 | Menukaart (QR-code) | `https://bimola.pages.dev/` | Cloudflare Pages-project `bimola` (+ Pages Functions) |
 | QR-kaartjes printen | `https://bimola.pages.dev/qr` | idem |
-| Beheerpagina | `https://bimola-admin.<account>.workers.dev/` | Worker `bimola-admin`, achter Cloudflare Access |
+| Beheerpagina | `https://admin.bimola.workers.dev/` | Worker `admin`, achter Cloudflare Access |
 | Data | – | Cloudflare D1-database `bimola` |
 
 Het Pages-project `bimola` **nooit verwijderen**: de geprinte QR-codes wijzen ernaar, en een vrijgekomen naam kan door iemand anders worden geclaimd.
@@ -14,7 +14,7 @@ Het Pages-project `bimola` **nooit verwijderen**: de geprinte QR-codes wijzen er
 ## Hoe het werkt
 
 ```
-Gast ──► bimola.pages.dev ──(alleen lezen)──► D1 ◄──(lezen + schrijven)── bimola-admin ◄── Cloudflare Access ◄── Dogus / Emre
+Gast ──► bimola.pages.dev ──(alleen lezen)──► D1 ◄──(lezen + schrijven)── admin ◄── Cloudflare Access ◄── Dogus / Emre
 ```
 
 - **Menukaart**: `functions/index.ts` bouwt de pagina server-side uit D1 (`src/menu/render.ts`). Werkt zonder JavaScript. Is D1 onbereikbaar, dan toont hij `public/snapshot.json` (nachtelijke kopie).
@@ -61,12 +61,12 @@ Databasewijzigingen alleen via een nieuw bestand in `migrations/` (nooit oude mi
 
 ## Buitengesloten?
 
-De eigenaar staat in het geheim `OWNER_EMAILS` en in de Access-policy zelf, niet alleen in de groep. Lukt inloggen toch niet: in het Cloudflare-dashboard (met 2FA) Zero Trust → Access → de policy van `bimola-admin` controleren, of `OWNER_EMAILS` opnieuw zetten met `wrangler secret put`.
+De eigenaar staat in het geheim `OWNER_EMAILS` en in de Access-policy zelf, niet alleen in de groep. Lukt inloggen toch niet: in het Cloudflare-dashboard (met 2FA) Zero Trust → Access → de policy van Worker `admin` controleren, of `OWNER_EMAILS` opnieuw zetten met `wrangler secret put`.
 
 ## Eenmalige inrichting (gedaan bij de overstap)
 
 1. `npx wrangler d1 create bimola --location eeur` → ID in `wrangler.toml` en `wrangler.admin.jsonc`; `npm run db:migrate:remote`.
 2. Gegevens importeren: `node scripts/seed-from-csv.ts <menu.csv> <ayarlar.csv> > seed/seed.sql` en `npx wrangler d1 execute bimola --remote --file seed/seed.sql`.
 3. Pages-project `bimola`: D1-binding komt uit `wrangler.toml`.
-4. Zero Trust: teamnaam, login-methoden One-time PIN (+ Google), Access op de Worker `bimola-admin` (alle verkeer), groep "Bi Mola beheerders", policy = groep + eigenaar. AUD-tag en teamdomein in `wrangler.admin.jsonc`.
+4. Zero Trust: teamnaam, login-methoden One-time PIN (+ Google), Access op de Worker `admin` (alle verkeer; account-subdomein `bimola.workers.dev`), groep "Bi Mola beheerders", policy = groep + eigenaar. AUD-tag en teamdomein in `wrangler.admin.jsonc`.
 5. Google-login: OAuth-client in Google Cloud-project "Bi Mola Login" (type Web, redirect `https://tiny-smoke-594d.cloudflareaccess.com/cdn-cgi/access/callback`). De Google-app staat op **Testing**: alleen e-mailadressen in Google Auth Platform → Audience → **Test users** kunnen "Inloggen met Google" gebruiken. Nieuwe beheerders kunnen altijd inloggen met de e-mailcode; voor Google ook daar toevoegen.
