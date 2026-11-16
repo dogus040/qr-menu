@@ -23,7 +23,9 @@ export default defineConfig(async () => {
             ACCESS_TEAM_DOMAIN: "test.cloudflareaccess.com",
             ACCESS_AUD: "test-aud",
             ACCESS_DIRECTORY: "d1",
-            OWNER_EMAILS: "owner@example.com"
+            OWNER_EMAILS: "owner@example.com",
+            // Vast zetten: anders wint een lokale .dev.vars.
+            PUBLIC_MENU_URL: "https://bimola.pages.dev/"
           }
         }
       })
