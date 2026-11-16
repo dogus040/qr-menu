@@ -10,7 +10,7 @@
     "dev:admin": "wrangler dev -c wrangler.admin.jsonc",
     "db:migrate:local": "wrangler d1 migrations apply bimola --local",
     "db:migrate:remote": "wrangler d1 migrations apply bimola --remote",
-    "seed:sql": "node scripts/seed-from-csv.mjs",
+    "seed:sql": "node scripts/seed-from-csv.ts",
     "deploy:admin": "wrangler deploy -c wrangler.admin.jsonc"
   },
   "dependencies": {

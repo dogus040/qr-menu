@@ -71,8 +71,10 @@ const sql = (v: string | number | null): string =>
 async function main(): Promise<void> {
   const [menuSrc, settingsSrc] = process.argv.slice(2);
   if (!menuSrc || !settingsSrc) {
-    console.error("Gebruik: node scripts/seed-from-csv.ts <menu.csv|url> <ayarlar.csv|url>");
-    process.exit(1);
+    console.error("Gebruik: npm run seed:sql -- <menu.csv|url> <ayarlar.csv|url> > seed/seed.sql");
+    // Geen process.exit(): dat laat Node op Windows soms crashen (UV_HANDLE_CLOSING) bij top-level await.
+    process.exitCode = 1;
+    return;
   }
   const menuRows = parseCsv(await load(menuSrc));
   const header = menuRows[0]!.map(normalizeKey);
