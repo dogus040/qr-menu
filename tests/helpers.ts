@@ -28,16 +28,21 @@ export interface CallOpts {
   origin?: string | null;
   contentType?: string;
   viaCookie?: boolean;
+  /** Taal van de beheerpagina (cookie admin_lang). */
+  lang?: "tr" | "en";
 }
 
 export async function call(path: string, opts: CallOpts = {}): Promise<Response> {
   const method = opts.method ?? (opts.body !== undefined ? "POST" : "GET");
   const headers = new Headers();
   const jwt = opts.jwt !== undefined ? opts.jwt : await token(opts.email === undefined ? OWNER : opts.email);
+  const cookies: string[] = [];
   if (jwt) {
-    if (opts.viaCookie) headers.set("Cookie", `CF_Authorization=${jwt}`);
+    if (opts.viaCookie) cookies.push(`CF_Authorization=${jwt}`);
     else headers.set("Cf-Access-Jwt-Assertion", jwt);
   }
+  if (opts.lang) cookies.push(`admin_lang=${opts.lang}`);
+  if (cookies.length) headers.set("Cookie", cookies.join("; "));
   if (method === "POST") {
     headers.set("Content-Type", opts.contentType ?? "application/json");
     if (opts.origin !== null) headers.set("Origin", opts.origin ?? ORIGIN);

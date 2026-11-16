@@ -31,7 +31,9 @@ export default defineConfig(async () => {
       })
     ],
     test: {
-      setupFiles: ["./tests/setup.ts"]
+      setupFiles: ["./tests/setup.ts"],
+      // Vitest maakt CSS standaard leeg; tests/themes.test.ts leest deze twee als tekst (?raw).
+      css: { include: [/style\.css/, /qr\.css/] }
     }
   };
 });

@@ -10,7 +10,7 @@ const NOW = "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')";
 
 const ITEM_JSON = `json_object('id', id, 'category_id', category_id, 'name', name, 'description', description,
   'price', price, 'price_small', price_small, 'price_large', price_large, 'available', available,
-  'tags', json(tags), 'allergens', json(allergens), 'position', position, 'version', version, 'deleted_at', deleted_at)`;
+  'tags', json(tags), 'allergen_text', allergen_text, 'position', position, 'version', version, 'deleted_at', deleted_at)`;
 const CATEGORY_JSON = `json_object('id', id, 'name', name, 'note', note, 'visible', visible,
   'position', position, 'version', version, 'deleted_at', deleted_at)`;
 
@@ -24,7 +24,7 @@ export interface ItemRow {
   price_large: number | null;
   available: number;
   tags: string[];
-  allergens: string[];
+  allergen_text: string;
   position: number;
   version: number;
   deleted_at: string | null;
@@ -49,7 +49,7 @@ export interface ItemData {
   price_large: number | null;
   available: number;
   tags: string[];
-  allergens: string[];
+  allergen_text: string;
 }
 
 export interface CategoryData {
@@ -98,7 +98,8 @@ function itemFromRow(r: Record<string, unknown>): ItemRow {
       return [];
     }
   };
-  return { ...(r as unknown as ItemRow), tags: list(r.tags), allergens: list(r.allergens) };
+  const { allergens: _oldAllergens, ...rest } = r; // oude kolom, niet meer gebruikt
+  return { ...(rest as unknown as ItemRow), tags: list(r.tags), allergen_text: String(r.allergen_text ?? "") };
 }
 
 /* ---------- lezen ---------- */
@@ -168,7 +169,7 @@ export async function getState(db: D1Database) {
 function itemValues(d: ItemData): unknown[] {
   return [
     d.category_id, d.name, d.description, d.price, d.price_small, d.price_large,
-    d.available, JSON.stringify(d.tags), JSON.stringify(d.allergens)
+    d.available, JSON.stringify(d.tags), d.allergen_text
   ];
 }
 
@@ -177,7 +178,7 @@ export async function createItem(db: D1Database, actor: string, d: ItemData): Pr
   const res = await runGuarded(db, [
     db
       .prepare(
-        `INSERT INTO items (category_id, name, description, price, price_small, price_large, available, tags, allergens, position)
+        `INSERT INTO items (category_id, name, description, price, price_small, price_large, available, tags, allergen_text, position)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
                  (SELECT COALESCE(MAX(position), 0) + 10 FROM items WHERE category_id = ? AND deleted_at IS NULL))`
       )
@@ -201,7 +202,7 @@ export async function updateItem(db: D1Database, actor: string, id: number, vers
     db
       .prepare(
         `UPDATE items SET category_id = ?, name = ?, description = ?, price = ?, price_small = ?, price_large = ?,
-           available = ?, tags = ?, allergens = ?,
+           available = ?, tags = ?, allergen_text = ?,
            position = ${moved ? "(SELECT COALESCE(MAX(position), 0) + 10 FROM items WHERE category_id = ? AND deleted_at IS NULL)" : "position"},
            version = version + 1, updated_at = ${NOW}
          WHERE id = ? AND version = ? AND deleted_at IS NULL`
@@ -220,8 +221,10 @@ function describeChange(b: ItemRow, d: ItemData): string {
   const fmt = (v: number | null): string => (v === null ? "–" : String(v / 100).replace(".", ","));
   if (b.price !== d.price) parts.push(`fiyat ${fmt(b.price)} → ${fmt(d.price)}`);
   if (b.price_small !== d.price_small) parts.push(`küçük ${fmt(b.price_small)} → ${fmt(d.price_small)}`);
-  if (b.price_large !== d.price_large) parts.push(`büyük ${fmt(b.price_large)} → ${fmt(d.price_large)}`);
+  // price_large = de tweede maat, "Orta" (de kolomnaam is historisch).
+  if (b.price_large !== d.price_large) parts.push(`orta ${fmt(b.price_large)} → ${fmt(d.price_large)}`);
   if (b.available !== d.available) parts.push(d.available ? "satışta" : "tükendi");
+  if (b.allergen_text !== d.allergen_text) parts.push("alerjen metni");
   return parts.length ? ` (${parts.join(", ")})` : "";
 }
 
@@ -473,11 +476,12 @@ export async function revert(db: D1Database, actor: string, auditId: number): Pr
     change = db
       .prepare(
         `UPDATE items SET category_id = ?, name = ?, description = ?, price = ?, price_small = ?, price_large = ?,
-           available = ?, tags = ?, allergens = ?, position = ?, version = version + 1, updated_at = ${NOW}
+           available = ?, tags = ?, allergen_text = ?, position = ?, version = version + 1, updated_at = ${NOW}
          WHERE id = ? AND version = ?`
       )
+      // Logregels van vóór de allergeentekst hebben dat veld niet: dan leeg.
       .bind(b.category_id, b.name, b.description, b.price, b.price_small, b.price_large, b.available,
-        JSON.stringify(b.tags ?? []), JSON.stringify(b.allergens ?? []), b.position, id, cur.version);
+        JSON.stringify(b.tags ?? []), b.allergen_text ?? "", b.position, id, cur.version);
   } else if (a.action === "update" && entity === "category") {
     const b = before as CategoryRow;
     change = db

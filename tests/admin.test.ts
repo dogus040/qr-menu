@@ -80,13 +80,35 @@ describe("CSRF", () => {
 describe("menu bewerken", () => {
   it("prijs wijzigen bumpt de versie en logt wie wat deed", async () => {
     const r = await call("/api/items/1", {
-      body: { version: 1, categoryId: 1, name: "Vanilya Latte", priceSmall: "185", priceLarge: "215", allergens: ["Süt"] }
+      body: { version: 1, categoryId: 1, name: "Vanilya Latte", priceSmall: "185", priceLarge: "215" }
     });
     expect(r.status).toBe(200);
     const s = await json(r);
     expect(item(1, s)).toMatchObject({ price_small: 18500, price_large: 21500, version: 2 });
     expect(s.log[0]).toMatchObject({ actor: OWNER, action: "update", revertible: true });
     expect(s.log[0].summary).toContain("küçük 180 → 185");
+    expect(s.log[0].summary).toContain("orta 210 → 215"); // tweede maat heet Orta, niet Büyük
+  });
+
+  it("allergeentekst: standaard leeg, per product te zetten, te wissen en terug te draaien", async () => {
+    // Oude allergenenlijst in de seed (["Süt"]) telt niet meer mee.
+    expect(item(1, await state()).allergen_text).toBe("");
+    const base = { categoryId: 1, name: "Vanilya Latte", priceSmall: "180", priceLarge: "210" };
+
+    let s = await json(await call("/api/items/1", { body: { ...base, version: 1, allergenText: "  Alerjen:   Süt " } }));
+    expect(item(1, s)).toMatchObject({ allergen_text: "Alerjen: Süt", version: 2 });
+    expect(s.log[0].summary).toContain("alerjen metni");
+
+    // De beschikbaarheid-schakelaar laat de tekst staan.
+    s = await json(await call("/api/items/1/available", { body: { version: 2, available: false } }));
+    expect(item(1, s).allergen_text).toBe("Alerjen: Süt");
+
+    s = await json(await call("/api/items/1", { body: { ...base, version: 3, allergenText: "" } }));
+    expect(item(1, s).allergen_text).toBe("");
+    await call(`/api/audit/${s.log[0].id}/revert`, { body: {} });
+    expect(item(1, await state()).allergen_text).toBe("Alerjen: Süt");
+
+    expect((await call("/api/items/2", { body: { version: 1, categoryId: 1, name: "Mocha", price: "1", allergenText: "x".repeat(401) } })).status).toBe(400);
   });
 
   it("verouderde versie: 409 en niets gewijzigd", async () => {
@@ -187,5 +209,49 @@ describe("terugdraaien", () => {
     s = await state();
     await call(`/api/audit/${s.log[0].id}/revert`, { body: {} });
     expect((await state()).settings.theme.value).toBe("kraft");
+  });
+});
+
+describe("QR-tabblad", () => {
+  it("alleen de eigenaar mag de menulink op de kaartjes wijzigen", async () => {
+    let s = await state();
+    expect(s.isOwner).toBe(true);
+    expect(s.publicMenuUrl).toBe("https://bimola.pages.dev/");
+    await call("/api/access/add", { body: { email: "emre@gmail.com" } });
+    s = await state("emre@gmail.com");
+    expect(s.isOwner).toBe(false);
+    expect(s.publicMenuUrl).toBe("https://bimola.pages.dev/");
+  });
+
+  it("geen aparte QR-pagina meer; de beheerpagina mag alleen het vastgepinde QR-script laden", async () => {
+    expect((await call("/qr")).status).toBe(404);
+    const page = await call("/");
+    expect(page.status).toBe(200);
+    const html = await page.text();
+    expect(html).toContain('data-tab="qr"');
+    expect(html).toContain('id="qr-sheet"');
+    const csp = page.headers.get("Content-Security-Policy") ?? "";
+    expect(csp).toContain("script-src 'self' https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js;");
+    expect(csp).not.toMatch(/script-src[^;]*https:\/\/cdnjs\.cloudflare\.com[;\s]/); // niet de hele CDN
+  });
+});
+
+describe("taal (cookie admin_lang)", () => {
+  it("foutmeldingen in het Engels, standaard Turks", async () => {
+    const body = { version: 1, categoryId: 1, name: "  ", price: "10" };
+    expect((await json(await call("/api/items/3", { body }))).error).toBe("Ürün adını yazın.");
+    expect((await json(await call("/api/items/3", { body, lang: "en" }))).error).toBe("Enter the item name.");
+    const conflict = await call("/api/items/3", { body: { ...body, name: "Çay", version: 9 }, lang: "en" });
+    expect(conflict.status).toBe(409);
+    expect((await json(conflict)).error).toMatch(/^This record changed in the meantime/);
+  });
+
+  it("weigerpagina volgt de taal", async () => {
+    const denied = await call("/", { email: "vreemde@gmail.com", lang: "en" });
+    expect(denied.status).toBe(403);
+    const html = await denied.text();
+    expect(html).toContain('<html lang="en"');
+    expect(html).toContain("This Google account / e-mail address has no access: vreemde@gmail.com");
+    expect(await (await call("/", { email: "vreemde@gmail.com" })).text()).toContain("erişim izni yok");
   });
 });

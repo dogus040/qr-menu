@@ -3,7 +3,7 @@
 //   node scripts/seed-from-csv.ts <menu.csv | url> <ayarlar.csv | url> > seed/seed.sql
 //   npx wrangler d1 execute bimola --remote --file seed/seed.sql
 //
-// Leest kolommen op naam (Kategori, Ürün, Açıklama, Fiyat, Küçük, Büyük, Etiket, Alerjen, Göster).
+// Leest kolommen op naam (Kategori, Ürün, Açıklama, Fiyat, Küçük, Orta of Büyük, Etiket, Alerjen, Göster).
 import { readFile } from "node:fs/promises";
 import { parsePrice } from "../src/shared/money.ts";
 import { cleanList, cleanText, normalizeKey } from "../src/shared/text.ts";
@@ -47,7 +47,7 @@ const COLUMNS: Record<string, string[]> = {
   aciklama: ["aciklama"],
   fiyat: ["fiyat"],
   kucuk: ["kucuk", "kucukboy"],
-  buyuk: ["buyuk", "buyukboy"],
+  buyuk: ["buyuk", "buyukboy", "orta", "ortaboy"], // tweede maat (Orta), kolom price_large
   etiket: ["etiket", "etiketler"],
   alerjen: ["alerjen", "alerjenler"],
   goster: ["goster", "aktif"]

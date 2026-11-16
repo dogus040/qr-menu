@@ -24,7 +24,8 @@ export const SETTING_DEFAULTS = {
   footer_note: "",
   theme: "kraft",
   size_small_label: "Küçük",
-  size_large_label: "Büyük"
+  // Tweede maat. In de database heet die kolom price_large (historisch); de maat zelf is "Orta".
+  size_large_label: "Orta"
 } as const;
 export type SettingKey = keyof typeof SETTING_DEFAULTS;
 export type Settings = Record<SettingKey, string>;
@@ -47,7 +48,8 @@ export interface MenuItem {
   priceSmall: number | null;
   priceLarge: number | null;
   tags: string[];
-  allergens: string[];
+  /** Vrije tekst onder het product, bijv. "Alerjen: Süt"; leeg = niets tonen. */
+  allergenText: string;
 }
 
 export interface MenuCategory {
@@ -86,7 +88,7 @@ interface ItemRow {
   price_small: number | null;
   price_large: number | null;
   tags: string;
-  allergens: string;
+  allergen_text: string;
 }
 
 /** Het menu zoals gasten het zien: alleen zichtbare categorieën en beschikbare producten. */
@@ -97,7 +99,7 @@ export async function loadPublicMenu(db: D1Database): Promise<PublicMenu> {
       "SELECT id, name, note FROM categories WHERE deleted_at IS NULL AND visible = 1 ORDER BY position, id"
     ),
     db.prepare(
-      `SELECT id, category_id, name, description, price, price_small, price_large, tags, allergens
+      `SELECT id, category_id, name, description, price, price_small, price_large, tags, allergen_text
          FROM items WHERE deleted_at IS NULL AND available = 1 ORDER BY position, id`
     )
   ]);
@@ -115,7 +117,7 @@ export async function loadPublicMenu(db: D1Database): Promise<PublicMenu> {
       priceSmall: r.price_small,
       priceLarge: r.price_large,
       tags: parseList(r.tags),
-      allergens: parseList(r.allergens)
+      allergenText: r.allergen_text ?? ""
     });
   }
 

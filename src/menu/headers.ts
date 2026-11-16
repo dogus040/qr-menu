@@ -1,7 +1,7 @@
 // Beveiligingsheaders voor de publieke HTML-pagina's.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' https://cdnjs.cloudflare.com",
+  "script-src 'self'",
   "style-src 'self' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com",
   "img-src 'self' data:",

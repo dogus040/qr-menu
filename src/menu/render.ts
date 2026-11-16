@@ -1,4 +1,4 @@
-// Server-side HTML voor de publieke menukaart en de QR-printpagina.
+// Server-side HTML voor de publieke menukaart. (De QR-kaartjes staan in de beheerpagina, tabblad QR.)
 // Alle data gaat door esc(); de pagina werkt ook zonder JavaScript.
 import { formatWithCurrency } from "../shared/money";
 import { THEME_COLORS, toTheme, type MenuCategory, type MenuItem, type PublicMenu, type Settings } from "../shared/menu";
@@ -40,10 +40,12 @@ function renderItem(item: MenuItem, s: Settings): string {
       priceCell(item.priceLarge, s.currency, "item-price item-price-size")
     : priceCell(item.price, s.currency);
 
-  const meta = item.tags.length || item.allergens.length
+  // allergenText komt per product uit de beheerpagina; een oude momentopname heeft het veld niet.
+  const allergen = item.allergenText ?? "";
+  const meta = item.tags.length || allergen
     ? `<p class="item-meta">${item.tags
         .map((t) => `<span class="tag tag-${esc(normalizeKey(t))}">${esc(t)}</span>`)
-        .join("")}${item.allergens.length ? `<span class="allergens">Alerjen: ${esc(item.allergens.join(", "))}</span>` : ""}</p>`
+        .join("")}${allergen ? `<span class="allergens">${esc(allergen)}</span>` : ""}</p>`
     : "";
 
   return `<li class="item">
@@ -121,37 +123,6 @@ export function renderMenuPage(menu: PublicMenu): string {
     </footer>
   </div>
   <script src="/js/menu-nav.js" defer></script>
-</body>
-</html>`;
-}
-
-export function renderQrPage(settings: Settings, menuUrl: string): string {
-  const s = settings;
-  return `${head("QR kaartjes", s, '\n  <meta name="robots" content="noindex">\n  <link rel="stylesheet" href="/css/qr.css">')}
-<body>
-  <section class="tools">
-    <h1>QR-kaartjes voor op tafel</h1>
-    <p>Controleer de link, druk op Afdrukken (4 kaartjes per A4, A6-formaat) of download de QR-code als afbeelding.</p>
-    <label>Link naar de menukaart
-      <input id="url" type="url" spellcheck="false" value="${esc(menuUrl)}">
-    </label>
-    <label>Tekst onder de QR-code
-      <input id="cta" type="text" value="Menü için QR kodu okutun">
-    </label>
-    <label>Tafelnummer (optioneel, bijv. "Masa 5")
-      <input id="table" type="text" value="">
-    </label>
-    <label class="check"><input id="printbg" type="checkbox" checked> Achtergrond meeprinten (uitzetten als je op echt kraftpapier print)</label>
-    <div class="buttons">
-      <button id="print" type="button">Afdrukken</button>
-      <button id="download" type="button" class="secondary">QR downloaden (PNG)</button>
-    </div>
-  </section>
-
-  <main id="sheet" class="sheet" data-name="${esc(s.restaurant_name)}" data-subtitle="${esc(s.subtitle)}"></main>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-  <script src="/js/qr.js"></script>
 </body>
 </html>`;
 }

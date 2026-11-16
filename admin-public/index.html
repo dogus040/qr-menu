@@ -10,36 +10,43 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/admin.css">
+  <link rel="stylesheet" href="/qr.css">
 </head>
 <body class="admin">
+  <!-- Teksten met data-i18n worden door app.js vertaald (Türkçe / English). -->
   <div class="view">
     <header class="topbar">
-      <div class="brand">Bi Mola <span class="muted">· Yönetim</span><span id="me" class="me"></span></div>
+      <div class="brand">Bi Mola <span class="muted" data-i18n="brandSuffix">· Yönetim</span><span id="me" class="me"></span></div>
       <div class="top-actions">
-        <a id="open-menu" class="btn ghost small" href="https://bimola.pages.dev/" target="_blank" rel="noopener">Menüyü aç</a>
-        <a class="btn ghost small" href="/cdn-cgi/access/logout">Çıkış</a>
+        <select id="lang" class="lang" aria-label="Dil / Language">
+          <option value="tr">TR</option>
+          <option value="en">EN</option>
+        </select>
+        <a id="open-menu" class="btn ghost small" href="https://bimola.pages.dev/" target="_blank" rel="noopener" data-i18n="openMenu">Menüyü aç</a>
+        <a class="btn ghost small" href="/cdn-cgi/access/logout" data-i18n="logout">Çıkış</a>
       </div>
     </header>
     <div id="banner" class="banner" role="alert" hidden>
       <span id="banner-text"></span>
-      <button id="banner-reload" type="button" class="btn small">Yeniden giriş</button>
+      <button id="banner-reload" type="button" class="btn small" data-i18n="loginAgain">Yeniden giriş</button>
     </div>
   </div>
 
   <!-- Ana ekran -->
   <section id="view-app" class="view">
     <nav class="tabs" role="tablist">
-      <button type="button" class="tab active" data-tab="menu" role="tab">Menü</button>
-      <button type="button" class="tab" data-tab="settings" role="tab">Ayarlar</button>
-      <button type="button" class="tab" data-tab="access" role="tab">Erişim</button>
-      <button type="button" class="tab" data-tab="history" role="tab">Geçmiş</button>
+      <button type="button" class="tab active" data-tab="menu" role="tab" data-i18n="tabMenu">Menü</button>
+      <button type="button" class="tab" data-tab="settings" role="tab" data-i18n="tabSettings">Ayarlar</button>
+      <button type="button" class="tab" data-tab="access" role="tab" data-i18n="tabAccess">Erişim</button>
+      <button type="button" class="tab" data-tab="history" role="tab" data-i18n="tabHistory">Geçmiş</button>
+      <button type="button" class="tab" data-tab="qr" role="tab">QR</button>
     </nav>
 
     <main id="tab-menu" class="tab-body">
-      <p id="loading" class="empty">Yükleniyor…</p>
+      <p id="loading" class="empty" data-i18n="loading">Yükleniyor…</p>
       <div id="menu-list"></div>
-      <button id="add-item" type="button" class="btn primary wide">+ Yeni ürün</button>
-      <button id="add-category" type="button" class="btn ghost wide">+ Yeni kategori</button>
+      <button id="add-item" type="button" class="btn primary wide" data-i18n="addItem">+ Yeni ürün</button>
+      <button id="add-category" type="button" class="btn ghost wide" data-i18n="addCategory">+ Yeni kategori</button>
     </main>
 
     <main id="tab-settings" class="tab-body" hidden>
@@ -48,15 +55,15 @@
 
     <main id="tab-access" class="tab-body" hidden>
       <section class="panel">
-        <h2 class="panel-title">Erişimi olan hesaplar</h2>
-        <p class="muted small-text">Sadece bu e-posta adresleri giriş yapabilir (Google veya e-posta kodu ile). Sahibin hesabı her zaman erişebilir.</p>
+        <h2 class="panel-title" data-i18n="accessTitle">Erişimi olan hesaplar</h2>
+        <p class="muted small-text" data-i18n="accessIntro">Sadece bu e-posta adresleri giriş yapabilir (Google veya e-posta kodu ile). Sahibin hesabı her zaman erişebilir.</p>
         <p id="access-note" class="error" hidden></p>
         <ul id="access-list" class="access-list"></ul>
         <form id="access-form" class="access-form" autocomplete="off" novalidate>
-          <label for="access-email">Yeni e-posta adresi</label>
+          <label for="access-email" data-i18n="newEmail">Yeni e-posta adresi</label>
           <div class="setting-row">
-            <input id="access-email" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="ornek@gmail.com" maxlength="120">
-            <button type="submit" class="btn primary">Ekle</button>
+            <input id="access-email" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="ornek@gmail.com" data-i18n-ph="emailPlaceholder" maxlength="120">
+            <button type="submit" class="btn primary" data-i18n="add">Ekle</button>
           </div>
           <p id="access-error" class="error" role="alert"></p>
         </form>
@@ -65,70 +72,96 @@
 
     <main id="tab-history" class="tab-body" hidden>
       <section class="panel">
-        <h2 class="panel-title">Son değişiklikler</h2>
-        <p class="muted small-text">Bir değişikliği "Geri al" ile eski haline getirin (sonradan tekrar değiştirilmediyse).</p>
+        <h2 class="panel-title" data-i18n="historyTitle">Son değişiklikler</h2>
+        <p class="muted small-text" data-i18n="historyIntro">Bir değişikliği "Geri al" ile eski haline getirin (sonradan tekrar değiştirilmediyse).</p>
         <ul id="log-list" class="log-list history"></ul>
       </section>
       <section class="panel">
-        <h2 class="panel-title">Çöp kutusu</h2>
+        <h2 class="panel-title" data-i18n="trashTitle">Çöp kutusu</h2>
         <ul id="trash-list" class="log-list history"></ul>
       </section>
+    </main>
+
+    <main id="tab-qr" class="tab-body" hidden>
+      <section class="panel qr-tools">
+        <h2 class="panel-title" data-i18n="qrTitle">Masalar için QR kartları</h2>
+        <p class="muted small-text" data-i18n="qrIntro">Yazdır'a basın (A4 başına 4 kart, A6 boyutu) veya QR kodunu resim olarak indirin.</p>
+        <label for="qr-url" data-i18n="qrUrl">Menü bağlantısı</label>
+        <input id="qr-url" type="url" spellcheck="false" autocapitalize="off" readonly>
+        <p id="qr-url-note" class="muted small-text"></p>
+        <label for="qr-cta" data-i18n="qrCta">QR kodunun altındaki yazı</label>
+        <input id="qr-cta" type="text" maxlength="80" value="Menü için QR kodu okutun">
+        <label for="qr-table" data-i18n="qrTable">Masa numarası (isteğe bağlı, örn. "Masa 5")</label>
+        <input id="qr-table" type="text" maxlength="40">
+        <label class="switch-row">
+          <span data-i18n="qrPrintBg">Arka planı da yazdır (gerçek kraft kâğıda yazdırıyorsanız kapatın)</span>
+          <input id="qr-printbg" type="checkbox" class="switch" checked>
+        </label>
+        <div class="qr-buttons">
+          <button id="qr-print" type="button" class="btn primary" data-i18n="qrPrint">Yazdır</button>
+          <button id="qr-download" type="button" class="btn ghost" data-i18n="qrDownload">QR indir (PNG)</button>
+        </div>
+      </section>
+      <div id="qr-sheet" class="qr-sheet" data-bg="kraft"></div>
     </main>
   </section>
 
   <!-- Ürün düzenleme -->
   <section id="view-item" class="view" hidden>
     <header class="topbar">
-      <button id="item-back" type="button" class="btn ghost small">&larr; Geri</button>
+      <button id="item-back" type="button" class="btn ghost small" data-i18n="back">&larr; Geri</button>
       <div class="brand" id="item-title">Ürün</div>
       <span></span>
     </header>
     <form id="item-form" class="panel edit" autocomplete="off" novalidate>
-      <label for="f-name">Ürün adı</label>
+      <label for="f-name" data-i18n="itemName">Ürün adı</label>
       <input id="f-name" type="text" maxlength="80" required>
 
-      <label for="f-category">Kategori</label>
+      <label for="f-category" data-i18n="category">Kategori</label>
       <select id="f-category"></select>
 
       <fieldset class="price-type">
-        <legend>Fiyat</legend>
-        <label class="radio"><input type="radio" name="ptype" value="single" checked> Tek fiyat</label>
-        <label class="radio"><input type="radio" name="ptype" value="sizes"> İki boy (Küçük / Büyük)</label>
+        <legend data-i18n="price">Fiyat</legend>
+        <label class="radio"><input type="radio" name="ptype" value="single" checked> <span data-i18n="singlePrice">Tek fiyat</span></label>
+        <!-- Maatnamen (Küçük / Orta) komen uit Ayarlar; app.js vult ze in. -->
+        <label class="radio"><input type="radio" name="ptype" value="sizes"> <span id="label-sizes">İki boy (Küçük / Orta)</span></label>
       </fieldset>
       <div id="price-single" class="price-row">
-        <label>Fiyat (₺)<input id="f-price" type="text" inputmode="decimal" maxlength="12"></label>
+        <label><span data-i18n="priceTl">Fiyat (₺)</span><input id="f-price" type="text" inputmode="decimal" maxlength="12"></label>
       </div>
       <div id="price-sizes" class="price-row" hidden>
-        <label>Küçük (₺)<input id="f-small" type="text" inputmode="decimal" maxlength="12"></label>
-        <label>Büyük (₺)<input id="f-large" type="text" inputmode="decimal" maxlength="12"></label>
+        <label><span id="label-small">Küçük (₺)</span><input id="f-small" type="text" inputmode="decimal" maxlength="12"></label>
+        <label><span id="label-large">Orta (₺)</span><input id="f-large" type="text" inputmode="decimal" maxlength="12"></label>
       </div>
 
-      <label for="f-description">Açıklama <span class="muted">(isteğe bağlı)</span></label>
+      <label for="f-description"><span data-i18n="description">Açıklama</span> <span class="muted" data-i18n="optional">(isteğe bağlı)</span></label>
       <input id="f-description" type="text" maxlength="200">
 
+      <label for="f-allergen"><span data-i18n="allergenText">Alerjen metni</span> <span class="muted" data-i18n="allergenHint">(menüde ürünün altında; boş = gösterilmez)</span></label>
+      <div class="setting-row">
+        <input id="f-allergen" type="text" maxlength="200" placeholder="örn. Alerjen: Süt" data-i18n-ph="allergenPlaceholder">
+        <button id="f-allergen-clear" type="button" class="btn ghost" data-i18n="clear">Temizle</button>
+      </div>
+
       <label class="switch-row">
-        <span>Satışta <span class="muted">(kapalı = tükendi, menüde görünmez)</span></span>
+        <span><span data-i18n="available">Satışta</span> <span class="muted" data-i18n="availableHint">(kapalı = tükendi, menüde görünmez)</span></span>
         <input id="f-available" type="checkbox" class="switch" checked>
       </label>
 
       <div class="chips-block">
-        <span class="chips-label">Etiketler</span>
+        <span class="chips-label" data-i18n="tags">Etiketler</span>
         <div id="f-tags" class="chips"></div>
-      </div>
-      <div class="chips-block">
-        <span class="chips-label">Alerjenler</span>
-        <div id="f-allergens" class="chips"></div>
       </div>
 
       <p id="item-error" class="error" role="alert"></p>
-      <button type="submit" class="btn primary wide" id="item-save">Kaydet</button>
+      <button type="submit" class="btn primary wide" id="item-save" data-i18n="save">Kaydet</button>
 
       <div id="item-extra" class="edit-extra">
         <div class="move">
-          <button type="button" class="btn ghost" id="item-up">&uarr; Yukarı</button>
-          <button type="button" class="btn ghost" id="item-down">&darr; Aşağı</button>
+          <button type="button" class="btn ghost" id="item-up" data-i18n="up">&uarr; Yukarı</button>
+          <button type="button" class="btn ghost" id="item-down" data-i18n="down">&darr; Aşağı</button>
         </div>
-        <button type="button" class="btn danger" id="item-delete">Ürünü sil</button>
+        <button type="button" class="btn danger" id="item-delete" data-i18n="deleteItem">Ürünü sil</button>
       </div>
     </form>
   </section>
@@ -136,27 +169,27 @@
   <!-- Kategori düzenleme -->
   <section id="view-category" class="view" hidden>
     <header class="topbar">
-      <button id="category-back" type="button" class="btn ghost small">&larr; Geri</button>
+      <button id="category-back" type="button" class="btn ghost small" data-i18n="back">&larr; Geri</button>
       <div class="brand" id="category-title">Kategori</div>
       <span></span>
     </header>
     <form id="category-form" class="panel edit" autocomplete="off" novalidate>
-      <label for="c-name">Kategori adı</label>
+      <label for="c-name" data-i18n="categoryName">Kategori adı</label>
       <input id="c-name" type="text" maxlength="60" required>
-      <label for="c-note">Not <span class="muted">(isteğe bağlı, başlığın altında)</span></label>
+      <label for="c-note"><span data-i18n="note">Not</span> <span class="muted" data-i18n="noteHint">(isteğe bağlı, başlığın altında)</span></label>
       <input id="c-note" type="text" maxlength="200">
       <label class="switch-row">
-        <span>Menüde göster</span>
+        <span data-i18n="showOnMenu">Menüde göster</span>
         <input id="c-visible" type="checkbox" class="switch" checked>
       </label>
       <p id="category-error" class="error" role="alert"></p>
-      <button type="submit" class="btn primary wide" id="category-save">Kaydet</button>
+      <button type="submit" class="btn primary wide" id="category-save" data-i18n="save">Kaydet</button>
       <div id="category-extra" class="edit-extra">
         <div class="move">
-          <button type="button" class="btn ghost" id="category-up">&uarr; Yukarı</button>
-          <button type="button" class="btn ghost" id="category-down">&darr; Aşağı</button>
+          <button type="button" class="btn ghost" id="category-up" data-i18n="up">&uarr; Yukarı</button>
+          <button type="button" class="btn ghost" id="category-down" data-i18n="down">&darr; Aşağı</button>
         </div>
-        <button type="button" class="btn danger" id="category-delete">Kategoriyi sil</button>
+        <button type="button" class="btn danger" id="category-delete" data-i18n="deleteCategory">Kategoriyi sil</button>
       </div>
     </form>
   </section>

@@ -52,7 +52,7 @@ body.admin {
 
 /* Formulieren */
 label { font-size: 14px; color: var(--ink-soft); display: block; margin-top: 14px; }
-input[type="text"], input[type="password"], input[type="email"], select {
+input[type="text"], input[type="password"], input[type="email"], input[type="url"], select {
   display: block;
   width: 100%;
   font: inherit;
@@ -94,13 +94,24 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
 /* Bovenbalk en tabs */
 .topbar {
   display: flex;
+  flex-wrap: wrap; /* smalle telefoon: knoppen op een eigen regel onder de titel */
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   padding: 14px 0 6px;
 }
 .brand { font-family: var(--serif-display); font-weight: 600; font-size: 20px; }
-.top-actions { display: flex; gap: 6px; }
+.top-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 6px; }
+/* Taalkiezer TR / EN: klein, naast de knoppen. */
+select.lang {
+  display: inline-block;
+  width: auto;
+  min-height: 38px;
+  margin: 0;
+  padding: 6px 8px;
+  font-size: 14px;
+  border-radius: 8px;
+}
 
 .tabs { display: flex; gap: 6px; margin: 8px 0 4px; }
 .tab {
@@ -147,6 +158,7 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
   padding: 6px 8px 6px 4px;
 }
 .row.off { opacity: 0.6; }
+.row-edit { flex-shrink: 0; white-space: nowrap; }
 .row-main {
   flex: 1;
   min-width: 0;
@@ -160,6 +172,7 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
 }
 .row-name { font-family: var(--serif-display); font-size: 17px; display: block; }
 .row-price { font-size: 14px; color: var(--ink-soft); display: block; margin-top: 2px; }
+.row-allergen { font-size: 13px; font-style: italic; color: var(--ink-soft); display: block; margin-top: 2px; }
 .badge {
   display: inline-block;
   font-size: 11px;
@@ -307,6 +320,7 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
 /* Geçmiş (log) en prullenbak */
 .history li { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .history .text { min-width: 0; }
+.history .btn { flex-shrink: 0; white-space: nowrap; overflow-wrap: normal; }
 .history .reverted { opacity: 0.55; }
 .badge.hidden-badge { background: var(--gold); }
 .cat-actions { display: flex; gap: 6px; }

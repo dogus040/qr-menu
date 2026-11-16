@@ -1,8 +1,7 @@
 // Publieke menukaart (Pages Functions) tegen een lokale D1.
-import { createPagesEventContext, env } from "cloudflare:test";
+import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { onRequestGet as menuPage } from "../functions/index";
-import { onRequestGet as qrPage } from "../functions/qr";
 import { seed } from "./helpers";
 
 const fakeAssets = (snapshot: unknown | null) =>
@@ -36,14 +35,29 @@ describe("menukaart", () => {
     const { res, html } = await render();
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Security-Policy")).toContain("frame-ancestors 'none'");
+    // Geen scripts van buiten meer nodig sinds de QR-pagina in de beheer-Worker staat.
+    expect(res.headers.get("Content-Security-Policy")).toContain("script-src 'self';");
     expect(html).toContain('data-bg="kraft"');
     expect(html).toContain("Sıcak Kahveler");
     expect(html).toContain("Vanilya Latte");
-    expect(html).toMatch(/size-label">Küçük<\/span><span class="size-label">Büyük/);
+    expect(html).toMatch(/size-label">Küçük<\/span><span class="size-label">Orta/);
     expect(html).toContain("180 ₺");
     expect(html).toContain("210 ₺");
     expect(html).toContain("30 ₺");
-    expect(html).toContain("Alerjen: Süt");
+    // De oude allergenenlijst (["Süt"] in de seed) wordt niet meer getoond; de allergeentekst is leeg.
+    expect(html).not.toContain("Alerjen");
+    expect(html).not.toContain('class="allergens"');
+  });
+
+  it("toont de allergeentekst per product zoals ingevuld, ge-escapet", async () => {
+    await env.DB.batch([
+      env.DB.prepare("UPDATE items SET allergen_text = 'Alerjen: Süt' WHERE id = 1"),
+      env.DB.prepare("UPDATE items SET allergen_text = '<b>Gluten</b>' WHERE id = 3")
+    ]);
+    const { html } = await render();
+    expect(html).toContain('<span class="allergens">Alerjen: Süt</span>');
+    expect(html).toContain("&lt;b&gt;Gluten&lt;/b&gt;");
+    expect(html.match(/class="allergens"/g)).toHaveLength(2);
   });
 
   it("laat uitverkochte producten, verborgen en verwijderde categorieën weg", async () => {
@@ -77,6 +91,7 @@ describe("menukaart", () => {
 
   it("valt terug op de momentopname als D1 faalt", async () => {
     const broken = { batch: async () => { throw new Error("D1 down"); } } as unknown as D1Database;
+    // Oud formaat (allergens-lijst, geen allergenText) moet blijven werken tot de volgende nachtelijke backup.
     const snapshot = {
       settings: [{ key: "restaurant_name", value: "Bi Mola" }],
       categories: [{ id: 1, name: "Reserve", note: "", items: [{ id: 1, name: "Çay", description: "", price: 3000, priceSmall: null, priceLarge: null, tags: [], allergens: [] }] }]
@@ -86,18 +101,5 @@ describe("menukaart", () => {
     expect(ok.html).toContain("Reserve");
     const none = await render(undefined, broken, null);
     expect(none.res.status).toBe(503);
-  });
-
-  it("QR-pagina gebruikt het vaste adres en het thema", async () => {
-    const ctx = createPagesEventContext<typeof qrPage>({
-      // Globale test-env heeft PUBLIC_MENU_URL uit wrangler.admin.jsonc.
-      request: new Request("https://abc123.bimola.pages.dev/qr"),
-      params: {},
-      data: {}
-    });
-    const html = await (await qrPage(ctx)).text();
-    expect(html).toContain('value="https://bimola.pages.dev/"');
-    expect(html).toContain('data-name="Bi Mola"');
-    expect(html).toContain('data-bg="kraft"');
   });
 });

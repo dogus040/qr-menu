@@ -3,6 +3,7 @@ import { Hono, type Context } from "hono";
 import { HttpError, type AdminEnv } from "./env";
 import { EMAIL_RE, MAX_ADMINS, allowedEmails, clearDirectoryCache, directory, isAllowed, ownerEmails, verifyAccess } from "./auth";
 import * as store from "./store";
+import { langOf, translate } from "./i18n";
 import {
   availableSchema, categorySchema, emailSchema, itemSchema, moveSchema, parseBody, settingSchema,
   toCategoryData, toItemData, versionSchema
@@ -11,9 +12,12 @@ import {
 type App = { Bindings: AdminEnv; Variables: { email: string } };
 const app = new Hono<App>();
 
+// QR-tabblad: qrcode-generator van cdnjs. Alleen dit ene bestand mag; app.js laadt het met een SRI-hash.
+const QR_LIB = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";
+
 const CSP = [
   "default-src 'self'",
-  "script-src 'self'",
+  `script-src 'self' ${QR_LIB}`,
   "style-src 'self' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com",
   "img-src 'self' data:",
@@ -78,11 +82,13 @@ async function stateResponse(c: Context<App>) {
   try {
     admins = await allowedEmails(c.env);
   } catch (err) {
-    accessError = err instanceof HttpError ? err.message : "Erişim listesi yüklenemedi.";
+    accessError = translate(err instanceof HttpError ? err.message : "Erişim listesi yüklenemedi.", langOf(c.req.raw));
   }
   return c.json({
     ...state,
     me: c.get("email"),
+    // Eigenaar (OWNER_EMAILS): mag o.a. de menulink op de QR-kaartjes wijzigen.
+    isOwner: ownerEmails(c.env).includes(c.get("email").toLowerCase()),
     access: {
       owners: ownerEmails(c.env),
       admins: admins.filter((e) => !ownerEmails(c.env).includes(e)),
@@ -116,7 +122,7 @@ app.post("/api/items/:id/available", async (c) => {
   await store.updateItem(c.env.DB, c.get("email"), id, version, {
     category_id: it.category_id, name: it.name, description: it.description, price: it.price,
     price_small: it.price_small, price_large: it.price_large, available: available ? 1 : 0,
-    tags: it.tags, allergens: it.allergens
+    tags: it.tags, allergen_text: it.allergen_text
   });
   return stateResponse(c);
 });
@@ -210,12 +216,15 @@ app.get("*", (c) => c.env.ASSETS.fetch(c.req.raw));
 app.onError((err, c) => {
   const status = err instanceof HttpError ? err.status : 500;
   if (status === 500 && !(err instanceof HttpError)) console.error(err);
-  const message = err instanceof HttpError ? err.message : "Beklenmeyen bir hata oluştu.";
+  const lang = langOf(c.req.raw);
+  const message = translate(err instanceof HttpError ? err.message : "Beklenmeyen bir hata oluştu.", lang);
   if (new URL(c.req.url).pathname.startsWith("/api/")) return c.json({ error: message }, status);
-  const page = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bi Mola · Yönetim</title></head>
+  const title = lang === "en" ? "Bi Mola · Admin" : "Bi Mola · Yönetim";
+  const other = lang === "en" ? "Log in with another account" : "Başka hesapla giriş yap";
+  const page = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title></head>
 <body style="font-family: Georgia, serif; max-width: 520px; margin: 15vh auto; padding: 0 16px; text-align: center; color: #26190c; background: #d4b88f;">
-<h1 style="font-weight: 500;">Bi Mola · Yönetim</h1><p>${message.replace(/[&<>"']/g, "")}</p>
-<p><a href="/cdn-cgi/access/logout" style="color: #7a2814;">Başka hesapla giriş yap</a></p></body></html>`;
+<h1 style="font-weight: 500;">${title}</h1><p>${message.replace(/[&<>"']/g, "")}</p>
+<p><a href="/cdn-cgi/access/logout" style="color: #7a2814;">${other}</a></p></body></html>`;
   // Eigen CSP: alleen inline-stijl, geen scripts (de gewone CSP zou de opmaak blokkeren).
   return c.html(page, status, { "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
 });

@@ -16,7 +16,7 @@ export const itemSchema = z.object({
   priceLarge: priceInput,
   available: z.boolean().optional().default(true),
   tags: z.array(z.string().max(60)).max(20).optional().default([]),
-  allergens: z.array(z.string().max(60)).max(20).optional().default([])
+  allergenText: z.string().max(400).optional().default("")
 });
 
 export const categorySchema = z.object({
@@ -62,7 +62,7 @@ export function toItemData(input: z.infer<typeof itemSchema>): ItemData {
     price_large: large,
     available: input.available ? 1 : 0,
     tags: cleanList(input.tags),
-    allergens: cleanList(input.allergens)
+    allergen_text: cleanText(input.allergenText, 200)
   };
 }
 

@@ -29,7 +29,8 @@ interface ItemRow {
   price_large: number | null;
   available: number;
   tags: string;
-  allergens: string;
+  allergens: string; // oude lijst, niet meer gebruikt; blijft in de backup
+  allergen_text: string;
   position: number;
   deleted_at: string | null;
 }
@@ -38,7 +39,7 @@ interface CategoryRow { id: number; name: string; note: string; visible: number;
 const settings = query<{ key: string; value: string }>("SELECT key, value FROM settings ORDER BY key");
 const categories = query<CategoryRow>("SELECT id, name, note, visible, position, deleted_at FROM categories ORDER BY position, id");
 const items = query<ItemRow>(
-  `SELECT id, category_id, name, description, price, price_small, price_large, available, tags, allergens, position, deleted_at
+  `SELECT id, category_id, name, description, price, price_small, price_large, available, tags, allergens, allergen_text, position, deleted_at
      FROM items ORDER BY category_id, position, id`
 );
 
@@ -72,7 +73,7 @@ const snapshot = {
           priceSmall: i.price_small,
           priceLarge: i.price_large,
           tags: list(i.tags),
-          allergens: list(i.allergens)
+          allergenText: i.allergen_text ?? ""
         }))
     }))
     .filter((c) => c.items.length > 0)

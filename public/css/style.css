@@ -213,7 +213,7 @@ body {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* Twee maten (Küçük / Büyük): vaste kolommen zodat de prijzen onder elkaar staan. */
+/* Twee maten (Küçük / Orta): vaste kolommen zodat de prijzen onder elkaar staan. */
 .item-price-size,
 .size-label {
   width: 72px;
