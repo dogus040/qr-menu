@@ -1,72 +1,71 @@
-# QR-menukaart
+# Bi Mola – QR-menukaart
 
-Een Turkse digitale menukaart in klassieke stijl voor Bi Mola, een kafe (kahve, tatlı, atıştırmalıklar, içecekler), voor achter een QR-code op tafel. Gratis online via GitHub Pages, aan te passen via Google Sheets.
+Turkse digitale menukaart (kraft-stijl) voor Bi Mola, met een beheerpagina voor de telefoon. Alles draait gratis op Cloudflare.
 
-- Menukaart (QR-adres): `https://bimola.pages.dev/` (Cloudflare Pages, bijgewerkt bij elke push naar main)
-- Reserve-adres: `https://dogus040.github.io/qr-menu/`
-- QR-kaartjes printen: `https://bimola.pages.dev/qr`
+| Onderdeel | Adres | Waar |
+|---|---|---|
+| Menukaart (QR-code) | `https://bimola.pages.dev/` | Cloudflare Pages-project `bimola` (+ Pages Functions) |
+| QR-kaartjes printen | `https://bimola.pages.dev/qr` | idem |
+| Beheerpagina | `https://bimola-admin.<account>.workers.dev/` | Worker `bimola-admin`, achter Cloudflare Access |
+| Data | – | Cloudflare D1-database `bimola` |
 
-## Menu aanpassen
+Het Pages-project `bimola` **nooit verwijderen**: de geprinte QR-codes wijzen ernaar, en een vrijgekomen naam kan door iemand anders worden geclaimd.
 
-Het menu staat in twee tabellen:
+## Hoe het werkt
 
-| Bestand / tabblad | Wat erin staat |
-|---|---|
-| `menu` (`data/menu.csv`) | Alle gerechten, categorieën en prijzen |
-| `ayarlar` (`data/ayarlar.csv`) | Naam, ondertitel, valuta, adres, telefoon, Instagram, openingstijden, voettekst |
-
-### Kolommen van `menu`
-
-| Kolom | Uitleg |
-|---|---|
-| Kategori | Categorie. De volgorde in de sheet is de volgorde op de kaart. |
-| Ürün | Naam van het gerecht. Laat leeg om een notitie bij de categorie te zetten (tekst in Açıklama). |
-| Açıklama | Korte omschrijving (optioneel). |
-| Fiyat | Alleen het getal, bijv. `250` of `12,50`. Het valutateken komt er vanzelf achter. |
-| Küçük / Büyük | Voor drankjes met twee maten: vul deze twee in en laat Fiyat leeg. De kaart toont dan twee prijskolommen. |
-| Etiket | Labels, met komma's: `Vejetaryen`, `Vegan`, `Acılı`, `Şefin Önerisi`, `Yeni`. |
-| Alerjen | Allergenen, met komma's (optioneel). |
-| Göster | `hayır` = tijdelijk verbergen (bijv. op). Leeg of `evet` = tonen. |
-
-### Achtergrond
-
-Vijf achtergronden: `kagit`, `kahve`, `cini`, `kraft`, `espresso`. Bekijken zonder iets te veranderen: zet `?bg=naam` achter de link, bijv. `https://dogus040.github.io/qr-menu/?bg=kahve`. Vast instellen: `arkaPlan` in `js/config.js`, of een regel `Arka Plan` met de naam in het tabblad `ayarlar` (die gaat voor).
-
-### Google Sheet
-
-De kaart leest het menu uit de Google Sheet **Bi Mola – Menü** (tabbladen `menu` en `ayarlar`). Pas de sheet aan, op de computer of in de Google Sheets-app op uw telefoon; gasten zien de wijziging zodra ze de kaart (opnieuw) openen.
-
-Voorwaarden, anders valt de kaart terug op de bestanden in `data/`:
-
-- De sheet blijft gedeeld als **Iedereen met de link: Lezer**. Geef bewerkrechten alleen aan personen, nooit aan "iedereen met de link".
-- Hernoem of verwijder de tabbladen niet en laat de kolomkoppen in rij 1 staan. Kolommen verplaatsen mag.
-- De links staan in `js/config.js`. Een andere sheet koppelen: vervang daar de ID en de `gid`-nummers.
-
-Tip: zet af en toe een kopie van de sheet in `data/menu.csv` en `data/ayarlar.csv` (Bestand → Downloaden → CSV), zodat de reserve actueel blijft.
-
-### Zonder Google Sheet
-
-Maak de links in `js/config.js` leeg (`""`) en pas `data/menu.csv` direct aan op github.com. Na opslaan staat de wijziging binnen ongeveer een minuut online.
-
-## Beheerpagina (`/yonetim`)
-
-`https://bimola.pages.dev/yonetim` is een Turkse beheerpagina voor de telefoon: prijzen wijzigen, producten toevoegen, verwijderen, verplaatsen, op "tükendi" zetten en de instellingen (`ayarlar`) aanpassen. Inloggen met een PIN. De pagina schrijft via een Google Apps Script-web-app (`apps-script/Code.gs`) rechtstreeks in de Google Sheet.
-
-Eenmalige installatie door de eigenaar van de Sheet:
-
-1. Open de Sheet → **Extensies → Apps Script**. Vervang de inhoud van `Code.gs` door `apps-script/Code.gs` en sla op.
-2. **Projectinstellingen** (tandwiel) → **Scripteigenschappen** → eigenschap `ADMIN_PIN` met een PIN van minstens 6 cijfers.
-3. **Implementeren → Nieuwe implementatie** → type **Web-app**. Uitvoeren als: **Ik**. Toegang: **Iedereen**. Toestemming geven (bij "Google heeft deze app niet geverifieerd": Geavanceerd → doorgaan; het is je eigen script).
-4. Kopieer de web-app-URL (eindigt op `/exec`) en zet die in `js/config.js` bij `adminApiUrl`.
-
-Na een wijziging in `Code.gs`: **Implementeren → Implementaties beheren → bewerken → Nieuwe versie**, dan blijft de URL gelijk. PIN wijzigen kan altijd in de scripteigenschappen. Na 8 foute PIN-pogingen gaat de pagina 15 minuten op slot.
-
-Test van de scriptlogica (zonder Google): `node tests/code_gs.test.js`.
-
-## Lokaal bekijken
-
-```bash
-python -m http.server 8765
+```
+Gast ──► bimola.pages.dev ──(alleen lezen)──► D1 ◄──(lezen + schrijven)── bimola-admin ◄── Cloudflare Access ◄── Dogus / Emre
 ```
 
-Open daarna `http://localhost:8765`.
+- **Menukaart**: `functions/index.ts` bouwt de pagina server-side uit D1 (`src/menu/render.ts`). Werkt zonder JavaScript. Is D1 onbereikbaar, dan toont hij `public/snapshot.json` (nachtelijke kopie).
+- **Beheer**: `src/admin/` (Hono). Elke aanvraag moet een geldig Cloudflare Access-token hebben (handtekening, app, uitgever, geldigheid) én een e-mailadres op de witte lijst. Schrijfacties alleen als JSON vanaf de eigen pagina (CSRF-controle).
+- **Witte lijst**: de Access-groep "Bi Mola beheerders" (`ACCESS_GROUP_ID`); beheerders passen die aan in het tabblad **Erişim**. De eigenaar (`OWNER_EMAILS`) mag er altijd in en kan niet worden verwijderd.
+- **Wijzigingen**: elke wijziging is één D1-transactie met een logregel (wie, wanneer, voor/na). Tabblad **Geçmiş** toont de log met **Geri al** (terugdraaien) en de prullenbak. Twee mensen tegelijk: wie met een verouderde versie opslaat krijgt een melding in plaats van het werk van de ander te overschrijven.
+- **Bedragen** staan als hele kuruş in de database (180 TL = 18000).
+
+## Menu bewerken
+
+Open de beheerpagina en log in met Google of een e-mailcode (alleen adressen op de witte lijst):
+
+- **Menü**: schakelaar = satışta/tükendi; tik op een product om naam, prijs (één prijs of Küçük/Büyük), categorie, labels en allergenen te wijzigen, te verplaatsen of te verwijderen. Categorieën via **Düzenle** / **+ Yeni kategori**.
+- **Ayarlar**: naam, slogan, adres, telefoon, Instagram, openingstijden, voettekst, achtergrond (thema), valuta, maat-labels.
+- **Erişim**: e-mailadressen toevoegen/verwijderen.
+- **Geçmiş**: laatste wijzigingen, terugdraaien, prullenbak.
+
+Thema bekijken zonder op te slaan: `https://bimola.pages.dev/?bg=kahve` (kagit, kahve, cini, kraft, espresso).
+
+## Ontwikkelen
+
+```bash
+npm ci
+npm test                 # Vitest in de Workers-runtime, lokale D1
+npm run typecheck
+npm run db:migrate:local
+npm run dev:menu         # http://localhost:8788
+npm run dev:admin        # beheer lokaal; .dev.vars met test-instellingen (niet in git)
+```
+
+Databasewijzigingen alleen via een nieuw bestand in `migrations/` (nooit oude migraties aanpassen).
+
+## Uitrollen
+
+- **Menukaart**: elke push naar `main` → Cloudflare Pages bouwt automatisch.
+- **Beheer + migraties**: GitHub Actions (`.github/workflows/ci.yml`) na groene tests op `main`. Secrets in GitHub: `CLOUDFLARE_API_TOKEN` (Workers Scripts: Edit, D1: Edit), `CLOUDFLARE_ACCOUNT_ID`.
+- Geheimen van de beheer-Worker (eenmalig): `npx wrangler secret put OWNER_EMAILS -c wrangler.admin.jsonc` en `npx wrangler secret put CF_API_TOKEN -c wrangler.admin.jsonc` (token met alleen "Access: Organizations, Identity Providers, and Groups: Edit").
+
+## Backup en herstel
+
+- **Elke nacht** (`.github/workflows/backup.yml`): `backup/menu.json` (alle menutabellen) en `public/snapshot.json` worden gecommit. Geen e-mailadressen of log.
+- **D1 Time Travel**: herstel naar elk moment van de laatste 7 dagen: `npx wrangler d1 time-travel restore bimola --timestamp=<ISO-tijd>`.
+- **Eén wijziging**: in de beheerpagina via Geçmiş → Geri al.
+
+## Buitengesloten?
+
+De eigenaar staat in het geheim `OWNER_EMAILS` en in de Access-policy zelf, niet alleen in de groep. Lukt inloggen toch niet: in het Cloudflare-dashboard (met 2FA) Zero Trust → Access → de policy van `bimola-admin` controleren, of `OWNER_EMAILS` opnieuw zetten met `wrangler secret put`.
+
+## Eenmalige inrichting (gedaan bij de overstap)
+
+1. `npx wrangler d1 create bimola --location eeur` → ID in `wrangler.toml` en `wrangler.admin.jsonc`; `npm run db:migrate:remote`.
+2. Gegevens importeren: `node scripts/seed-from-csv.ts <menu.csv> <ayarlar.csv> > seed/seed.sql` en `npx wrangler d1 execute bimola --remote --file seed/seed.sql`.
+3. Pages-project `bimola`: D1-binding komt uit `wrangler.toml`.
+4. Zero Trust: teamnaam, login-methoden One-time PIN (+ Google), Access op de Worker `bimola-admin` (alle verkeer), groep "Bi Mola beheerders", policy = groep + eigenaar. AUD-tag en teamdomein in `wrangler.admin.jsonc`.

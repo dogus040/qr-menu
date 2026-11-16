@@ -27,7 +27,7 @@ const CSP = [
 app.use("*", async (c, next) => {
   await next();
   const res = new Response(c.res.body, c.res);
-  res.headers.set("Content-Security-Policy", CSP);
+  if (!res.headers.has("Content-Security-Policy")) res.headers.set("Content-Security-Policy", CSP);
   res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "no-referrer");
@@ -216,7 +216,8 @@ app.onError((err, c) => {
 <body style="font-family: Georgia, serif; max-width: 520px; margin: 15vh auto; padding: 0 16px; text-align: center; color: #26190c; background: #d4b88f;">
 <h1 style="font-weight: 500;">Bi Mola · Yönetim</h1><p>${message.replace(/[&<>"']/g, "")}</p>
 <p><a href="/cdn-cgi/access/logout" style="color: #7a2814;">Başka hesapla giriş yap</a></p></body></html>`;
-  return c.html(page, status);
+  // Eigen CSP: alleen inline-stijl, geen scripts (de gewone CSP zou de opmaak blokkeren).
+  return c.html(page, status, { "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
 });
 
 export default app;

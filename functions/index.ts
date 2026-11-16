@@ -38,3 +38,6 @@ export const onRequestGet: PagesFunction<MenuEnv> = async ({ env, request }) => 
   }
   return new Response(renderMenuPage(menu), { headers: htmlHeaders(15) });
 };
+
+// HEAD (linkvoorbeelden, monitoring) krijgt dezelfde headers; de runtime laat de body weg.
+export const onRequestHead = onRequestGet;
