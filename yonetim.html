@@ -17,21 +17,22 @@
 <body class="admin">
   <!-- Giriş -->
   <section id="view-login" class="view">
-    <form id="login-form" class="panel login" autocomplete="off">
+    <div class="panel login">
       <div class="ornament" aria-hidden="true">&#10086;</div>
       <h1>Bi Mola</h1>
       <p class="muted">Menü yönetimi</p>
-      <label for="pin">PIN kodu</label>
-      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
-      <button type="submit" class="btn primary wide">Giriş</button>
+      <p class="login-help">Yetkili Google hesabınızla giriş yapın.</p>
+      <div id="gsi-button" class="gsi-button"></div>
+      <p id="login-status" class="muted small-text" aria-live="polite"></p>
       <p id="login-error" class="error" role="alert"></p>
-    </form>
+      <button id="switch-account" type="button" class="btn ghost wide" hidden>Başka hesapla giriş yap</button>
+    </div>
   </section>
 
   <!-- Ana ekran -->
   <section id="view-app" class="view" hidden>
     <header class="topbar">
-      <div class="brand">Bi Mola <span class="muted">· Yönetim</span></div>
+      <div class="brand">Bi Mola <span class="muted">· Yönetim</span><span id="me" class="me"></span></div>
       <div class="top-actions">
         <a class="btn ghost small" href="./" target="_blank" rel="noopener">Menüyü aç</a>
         <button id="logout" type="button" class="btn ghost small">Çıkış</button>
@@ -40,6 +41,7 @@
     <nav class="tabs" role="tablist">
       <button type="button" class="tab active" data-tab="menu" role="tab">Menü</button>
       <button type="button" class="tab" data-tab="settings" role="tab">Ayarlar</button>
+      <button type="button" class="tab" data-tab="access" role="tab">Erişim</button>
     </nav>
 
     <main id="tab-menu" class="tab-body">
@@ -49,6 +51,26 @@
 
     <main id="tab-settings" class="tab-body" hidden>
       <div id="settings-list"></div>
+    </main>
+
+    <main id="tab-access" class="tab-body" hidden>
+      <section class="panel">
+        <h2 class="panel-title">Erişimi olan Google hesapları</h2>
+        <p class="muted small-text">Sadece bu hesaplar menüyü düzenleyebilir. Sahibin hesabı her zaman erişebilir.</p>
+        <ul id="access-list" class="access-list"></ul>
+        <form id="access-form" class="access-form" autocomplete="off" novalidate>
+          <label for="access-email">Yeni Google e-posta adresi</label>
+          <div class="setting-row">
+            <input id="access-email" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="ornek@gmail.com" maxlength="120">
+            <button type="submit" class="btn primary">Ekle</button>
+          </div>
+          <p id="access-error" class="error" role="alert"></p>
+        </form>
+      </section>
+      <section class="panel">
+        <h2 class="panel-title">Son değişiklikler</h2>
+        <ul id="log-list" class="log-list"></ul>
+      </section>
     </main>
   </section>
 
@@ -113,5 +135,6 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="js/yonetim.js"></script>
+  <script src="https://accounts.google.com/gsi/client?hl=tr" async defer></script>
 </body>
 </html>

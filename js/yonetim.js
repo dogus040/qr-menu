@@ -22,9 +22,9 @@
     ["parabirimi", "Para Birimi", "Para birimi"]
   ];
   var FIELDS = ["kategori", "urun", "aciklama", "fiyat", "kucuk", "buyuk", "etiket", "alerjen", "goster"];
-  var PIN_KEY = "bimola-yonetim-pin";
+  var TOKEN_KEY = "bimola-yonetim-token";
 
-  var state = { pin: "", data: null, editing: null, extraTags: [], extraAllergens: [] };
+  var state = { idToken: "", data: null, editing: null, extraTags: [], extraAllergens: [] };
 
   function $(id) { return document.getElementById(id); }
 
@@ -51,15 +51,39 @@
     return !(k === "hayir" || k === "h" || k === "0" || k === "false");
   }
 
-  /* ---------- opslag (alleen deze browsersessie) ---------- */
-  function savePin(pin) { try { sessionStorage.setItem(PIN_KEY, pin); } catch (e) { /* privévenster */ } }
-  function loadPin() { try { return sessionStorage.getItem(PIN_KEY) || ""; } catch (e) { return ""; } }
-  function clearPin() { try { sessionStorage.removeItem(PIN_KEY); } catch (e) { /* niets */ } }
+  /* ---------- Google-token (alleen deze browsersessie, max. 1 uur geldig) ---------- */
+  // Inhoud van het ID-token lezen (alleen voor weergave en vervaltijd;
+  // de echte controle doet het script bij Google).
+  function tokenPayload(token) {
+    try {
+      var part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      var json = decodeURIComponent(atob(part).split("").map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(""));
+      return JSON.parse(json);
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function tokenValid(token) {
+    var exp = Number(tokenPayload(token).exp || 0);
+    return !exp || exp * 1000 > Date.now() + 60000;
+  }
+
+  function saveToken(t) { try { sessionStorage.setItem(TOKEN_KEY, t); } catch (e) { /* privévenster */ } }
+  function loadToken() { try { return sessionStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
+  function clearToken() { try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) { /* niets */ } }
 
   /* ---------- API ---------- */
   function api(action, extra) {
     if (!API) return Promise.reject(new Error("Kurulum tamamlanmadı: yönetim bağlantısı (adminApiUrl) eksik."));
-    var body = { action: action, pin: state.pin };
+    if (!state.idToken || !tokenValid(state.idToken)) {
+      var expired = new Error("Oturumun süresi doldu. Tekrar giriş yapın.");
+      expired.auth = true;
+      return Promise.reject(expired);
+    }
+    var body = { action: action, idToken: state.idToken };
     Object.keys(extra || {}).forEach(function (k) { body[k] = extra[k]; });
     // Geen eigen headers: zo blijft het een "simple request" zonder CORS-preflight.
     return fetch(API, { method: "POST", body: JSON.stringify(body), redirect: "follow" })
@@ -69,6 +93,7 @@
         if (!res || !res.ok) {
           var err = new Error((res && res.error) || "Bir hata oluştu.");
           err.auth = Boolean(res && res.auth);
+          err.denied = Boolean(res && res.denied);
           throw err;
         }
         state.data = res.data;
@@ -93,11 +118,8 @@
   }
 
   function handleError(err) {
-    if (err.auth) {
-      clearPin();
-      state.pin = "";
-      showView("login");
-      $("login-error").textContent = err.message;
+    if (err.auth || err.denied) {
+      signOut(err.message, err.denied);
       return;
     }
     toast(err.message, true);
@@ -394,44 +416,170 @@
     });
   }
 
-  /* ---------- start ---------- */
-  function enterApp() {
-    renderMenu();
-    renderSettings();
-    showView("app");
+  /* ---------- erişim (witte lijst) en log ---------- */
+  function renderAccess() {
+    var acc = state.data.access || { emails: [] };
+    $("me").textContent = acc.me || "";
+
+    var list = $("access-list");
+    list.textContent = "";
+    var rows = [];
+    if (acc.owner) rows.push({ email: acc.owner, owner: true });
+    acc.emails.forEach(function (e) { rows.push({ email: e, owner: false }); });
+
+    rows.forEach(function (r) {
+      var li = el("li");
+      var info = el("span");
+      info.appendChild(el("span", null, r.email));
+      var tags = [];
+      if (r.owner) tags.push("Sahibi");
+      if (r.email === acc.me) tags.push("Sen");
+      if (tags.length) info.appendChild(el("span", "tagline", tags.join(" · ")));
+      li.appendChild(info);
+      if (!r.owner) {
+        var rm = el("button", "btn danger small", "Kaldır");
+        rm.type = "button";
+        rm.addEventListener("click", function () { removeAccess(r.email, rm); });
+        li.appendChild(rm);
+      }
+      list.appendChild(li);
+    });
+
+    var log = $("log-list");
+    log.textContent = "";
+    var entries = state.data.log || [];
+    if (!entries.length) log.appendChild(el("li", "muted", "Henüz değişiklik yok."));
+    entries.forEach(function (x) {
+      var li = el("li");
+      var when = new Date(x.t);
+      li.appendChild(el("span", "when", (isNaN(when) ? x.t : when.toLocaleString("tr-TR")) + " · " + x.who));
+      li.appendChild(el("span", null, x.what));
+      log.appendChild(li);
+    });
   }
 
-  $("login-form").addEventListener("submit", function (ev) {
-    ev.preventDefault();
-    var btn = ev.target.querySelector("button");
-    state.pin = $("pin").value.trim();
-    $("login-error").textContent = "";
-    btn.disabled = true;
-    api("list")
+  function removeAccess(email, btn) {
+    var self = state.data.access && email === state.data.access.me;
+    var msg = self
+      ? "Kendi erişiminizi kaldırırsanız artık giriş yapamazsınız. Devam edilsin mi?"
+      : "\"" + email + "\" artık menüyü düzenleyemeyecek. Devam edilsin mi?";
+    if (!window.confirm(msg)) return;
+    busy(btn, true);
+    api("accessRemove", { email: email })
       .then(function () {
-        btn.disabled = false;
-        savePin(state.pin);
-        $("pin").value = "";
-        enterApp();
+        busy(btn, false);
+        toast("Erişim kaldırıldı: " + email);
+        if (self) { signOut("Erişiminiz kaldırıldı."); return; }
+        renderAccess();
+      })
+      .catch(function (err) { busy(btn, false); handleError(err); });
+  }
+
+  var EMAIL_RE = /^[^\s@,;<>"']+@[^\s@,;<>"']+\.[a-z]{2,}$/i;
+
+  $("access-form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var input = $("access-email");
+    var email = input.value.trim().toLowerCase();
+    $("access-error").textContent = "";
+    if (!EMAIL_RE.test(email)) { $("access-error").textContent = "Geçerli bir e-posta adresi yazın."; return; }
+    var btn = ev.target.querySelector("button");
+    busy(btn, true);
+    api("accessAdd", { email: email })
+      .then(function () {
+        busy(btn, false);
+        input.value = "";
+        renderAccess();
+        toast("Erişim eklendi: " + email);
       })
       .catch(function (err) {
-        btn.disabled = false;
-        $("login-error").textContent = err.message;
+        busy(btn, false);
+        if (err.auth || err.denied) { handleError(err); return; }
+        $("access-error").textContent = err.message;
       });
   });
 
-  $("logout").addEventListener("click", function () {
-    clearPin();
-    state.pin = "";
+  /* ---------- inloggen met Google ---------- */
+  function enterApp() {
+    renderMenu();
+    renderSettings();
+    renderAccess();
+    showView("app");
+  }
+
+  function setLoginState(status, error, offerSwitch) {
+    $("login-status").textContent = status || "";
+    $("login-error").textContent = error || "";
+    $("switch-account").hidden = !offerSwitch;
+  }
+
+  // Wordt aangeroepen door Google ("Sign in with Google") met een ID-token.
+  function onCredential(response) {
+    state.idToken = response && response.credential ? response.credential : "";
+    if (!state.idToken) return;
+    setLoginState("Giriş kontrol ediliyor…");
+    api("list")
+      .then(function () {
+        saveToken(state.idToken);
+        setLoginState("");
+        enterApp();
+      })
+      .catch(function (err) {
+        state.idToken = "";
+        clearToken();
+        setLoginState("", err.message, err.denied);
+        showView("login");
+      });
+  }
+
+  function signOut(message, offerSwitch) {
+    clearToken();
+    state.idToken = "";
     state.data = null;
+    try { if (window.google && google.accounts) google.accounts.id.disableAutoSelect(); } catch (e) { /* niets */ }
     showView("login");
+    setLoginState("", message || "", offerSwitch);
+  }
+
+  var gisReady = false;
+  function initGis() {
+    if (gisReady || !(window.google && google.accounts && google.accounts.id)) return;
+    if (!cfg.googleClientId) {
+      setLoginState("", "Kurulum tamamlanmadı: Google giriş ayarı (googleClientId) eksik.");
+      return;
+    }
+    gisReady = true;
+    google.accounts.id.initialize({
+      client_id: cfg.googleClientId,
+      callback: onCredential,
+      auto_select: true,
+      cancel_on_tap_outside: false,
+      use_fedcm_for_prompt: true,
+      itp_support: true,
+      context: "signin"
+    });
+    google.accounts.id.renderButton($("gsi-button"), {
+      type: "standard", theme: "outline", size: "large", text: "signin_with",
+      shape: "pill", logo_alignment: "left", locale: "tr", width: 260
+    });
+    if (!state.idToken) google.accounts.id.prompt();
+  }
+  window.onGoogleLibraryLoad = initGis;
+
+  $("switch-account").addEventListener("click", function () {
+    try { google.accounts.id.disableAutoSelect(); google.accounts.id.prompt(); } catch (e) { /* niets */ }
+    setLoginState("Google hesabınızı seçin.");
   });
+
+  $("logout").addEventListener("click", function () { signOut("Çıkış yapıldı."); });
 
   document.querySelectorAll(".tab").forEach(function (t) {
     t.addEventListener("click", function () {
       document.querySelectorAll(".tab").forEach(function (x) { x.classList.toggle("active", x === t); });
-      $("tab-menu").hidden = t.dataset.tab !== "menu";
-      $("tab-settings").hidden = t.dataset.tab !== "settings";
+      ["menu", "settings", "access"].forEach(function (name) {
+        $("tab-" + name).hidden = t.dataset.tab !== name;
+      });
+      if (t.dataset.tab === "access" && state.data) renderAccess();
     });
   });
 
@@ -449,18 +597,26 @@
   $("move-up").addEventListener("click", function () { moveItem(-1); });
   $("move-down").addEventListener("click", function () { moveItem(1); });
 
-  // Eerder ingelogd in deze sessie? Dan meteen door.
+  // Alleen voor lokaal testen (localhost): inloggen met een test-token.
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    window.__bimolaTestLogin = function (token) { onCredential({ credential: token }); };
+  }
+
   if (!API) {
-    $("login-error").textContent = "Kurulum tamamlanmadı: yönetim bağlantısı (adminApiUrl) eksik.";
+    setLoginState("", "Kurulum tamamlanmadı: yönetim bağlantısı (adminApiUrl) eksik.");
   }
-  var saved = loadPin();
-  if (saved && API) {
-    state.pin = saved;
-    api("list").then(enterApp).catch(function (err) {
-      clearPin();
-      state.pin = "";
-      showView("login");
-      if (!err.auth) $("login-error").textContent = err.message;
+  // Nog geldig token uit deze sessie? Dan meteen door.
+  var saved = loadToken();
+  if (saved && API && tokenValid(saved)) {
+    state.idToken = saved;
+    setLoginState("Giriş kontrol ediliyor…");
+    api("list").then(function () { setLoginState(""); enterApp(); }).catch(function (err) {
+      clearToken();
+      state.idToken = "";
+      setLoginState("", err.auth ? "" : err.message, err.denied);
     });
+  } else {
+    clearToken();
   }
+  initGis();
 })();

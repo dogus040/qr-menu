@@ -4,25 +4,35 @@
  * Google Apps Script voor de Google Sheet "Bi Mola – Menü" (SHEET_ID hieronder).
  * De pagina bimola.pages.dev/yonetim praat hiermee.
  *
+ * Toegang: inloggen met Google. De pagina stuurt bij elk verzoek het
+ * ID-token van "Sign in with Google" mee; dit script laat Google het token
+ * controleren (handtekening, bestemd voor OAUTH_CLIENT_ID, niet verlopen,
+ * e-mail geverifieerd) en kijkt daarna of het e-mailadres op de witte lijst
+ * staat. De eigenaar van het script mag er altijd in en kan niet van de lijst.
+ * De witte lijst staat in de scripteigenschap ALLOWED_EMAILS en wordt via
+ * de beheerpagina (tab "Erişim") bijgehouden. Elke wijziging komt in een
+ * wijzigingslog (scripteigenschap CHANGE_LOG: wie, wanneer, wat).
+ *
  * Installatie (eenmalig, door de eigenaar van de Sheet):
- *   1. script.google.com → Nieuw project (of Extensies → Apps Script in de Sheet),
- *      plak dit bestand in Code.gs.
- *   2. Projectinstellingen → Scripteigenschappen → eigenschap ADMIN_PIN met de PIN.
+ *   1. script.google.com → Nieuw project, plak dit bestand in Code.gs.
+ *   2. Vul OAUTH_CLIENT_ID hieronder in (Google Cloud → OAuth-client, type Web,
+ *      toegestane JavaScript-oorsprong https://bimola.pages.dev).
  *   3. Implementeren → Nieuwe implementatie → Web-app,
  *      Uitvoeren als: Ik, Toegang: Iedereen. Kopieer de web-app-URL.
- *   4. Zet die URL in js/config.js bij adminApiUrl.
+ *   4. Zet die URL bij adminApiUrl en de client-ID bij googleClientId in js/config.js.
  *
- * Geen geheimen in dit bestand: de PIN staat alleen in de scripteigenschappen.
+ * Geen geheimen in dit bestand: de client-ID is openbaar, de witte lijst
+ * staat in de scripteigenschappen.
  */
 
 // ID van de Google Sheet "Bi Mola – Menü" (uit de link: /spreadsheets/d/<ID>/edit).
-// Wordt gebruikt als het script los staat; een script via Extensies → Apps Script
-// gebruikt automatisch zijn eigen Sheet.
 var SHEET_ID = "1WMBCNGtdqOYoTtWO3RERnBfEVjyKoajX4JKQ2dgdHfU";
+// OAuth-client-ID ("Sign in with Google") van de beheerpagina.
+var OAUTH_CLIENT_ID = "";
 var MENU_SHEET = "menu";
 var SETTINGS_SHEET = "ayarlar";
-var MAX_FAILS = 8;          // foute PIN-pogingen voordat alles even op slot gaat
-var LOCK_SECONDS = 900;     // 15 minuten
+var LOG_MAX = 80;           // aantal bewaarde regels in het wijzigingslog
+var MAX_ALLOWED = 50;
 
 var FIELDS = {
   kategori: ["kategori", "kategoriler"],
@@ -49,13 +59,21 @@ function doPost(e) {
     return json_({ ok: false, error: "Geçersiz istek." });
   }
 
-  var authError = checkPin_(req.pin);
-  if (authError) return json_({ ok: false, auth: true, error: authError });
+  var email;
+  try {
+    email = verifyGoogleToken_(req.idToken);
+  } catch (err) {
+    return json_({ ok: false, auth: true, error: err.message });
+  }
+  if (!isAllowed_(email)) {
+    return json_({ ok: false, denied: true, email: email,
+      error: "Bu Google hesabının erişim izni yok: " + email });
+  }
 
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    return json_(handle_(req));
+    return json_(handle_(req, email));
   } catch (err) {
     return json_({ ok: false, error: String((err && err.message) || err) });
   } finally {
@@ -68,38 +86,141 @@ function book_() {
   return active || SpreadsheetApp.openById(SHEET_ID);
 }
 
-function handle_(req) {
+function handle_(req, email) {
   var ss = book_();
   var sheet = ss.getSheetByName(MENU_SHEET);
   if (!sheet) throw new Error('"' + MENU_SHEET + '" sekmesi bulunamadı.');
 
+  var what = "";
   switch (req.action) {
     case "list": break;
-    case "update": updateItem_(sheet, req); break;
-    case "add": addItem_(sheet, req); break;
-    case "delete": deleteItem_(sheet, req); break;
-    case "move": moveItem_(sheet, req); break;
-    case "setting": updateSetting_(ss, req); break;
+    case "update": what = updateItem_(sheet, req); break;
+    case "add": what = addItem_(sheet, req); break;
+    case "delete": what = deleteItem_(sheet, req); break;
+    case "move": what = moveItem_(sheet, req); break;
+    case "setting": what = updateSetting_(ss, req); break;
+    case "accessAdd": what = accessAdd_(req.email); break;
+    case "accessRemove": what = accessRemove_(req.email); break;
     default: return { ok: false, error: "Bilinmeyen işlem." };
   }
-  return { ok: true, data: snapshot_(ss, sheet) };
+  if (what) log_(ss, email, what);
+
+  var data = snapshot_(ss, sheet);
+  data.access = { me: email, owner: ownerEmail_(), emails: allowedList_() };
+  data.log = readLog_().slice(0, 30);
+  return { ok: true, data: data };
 }
 
-/* ---------- PIN ---------- */
+/* ---------- Google-login en witte lijst ---------- */
 
-function checkPin_(pin) {
-  var real = PropertiesService.getScriptProperties().getProperty("ADMIN_PIN");
-  if (!real || String(real).length < 4) {
-    return "PIN ayarlanmamış. Sahibi: Apps Script → Proje ayarları → ADMIN_PIN.";
-  }
+function authError_(msg) {
+  return new Error(msg || "Google ile tekrar giriş yapın.");
+}
+
+// Laat Google het ID-token controleren; geeft het (kleine letters) e-mailadres terug.
+function verifyGoogleToken_(token) {
+  if (!OAUTH_CLIENT_ID) throw authError_("Kurulum eksik: OAUTH_CLIENT_ID boş.");
+  if (!token || typeof token !== "string" || token.length > 4096) throw authError_("Google ile giriş yapın.");
+
   var cache = CacheService.getScriptCache();
-  var fails = Number(cache.get("fails") || 0);
-  if (fails >= MAX_FAILS) return "Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin.";
-  if (String(pin || "") !== String(real)) {
-    cache.put("fails", String(fails + 1), LOCK_SECONDS);
-    return "PIN yanlış.";
+  var key = "tok_" + Utilities.base64EncodeWebSafe(
+    Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, token));
+  var cached = cache.get(key);
+  if (cached) return cached;
+
+  var res = UrlFetchApp.fetch(
+    "https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(token),
+    { muteHttpExceptions: true });
+  if (res.getResponseCode() !== 200) throw authError_("Oturumun süresi doldu. Tekrar giriş yapın.");
+
+  var info = JSON.parse(res.getContentText());
+  var now = Math.floor(Date.now() / 1000);
+  var exp = Number(info.exp);
+  if (info.aud !== OAUTH_CLIENT_ID) throw authError_("Geçersiz giriş (yanlış uygulama).");
+  if (info.iss !== "accounts.google.com" && info.iss !== "https://accounts.google.com") throw authError_("Geçersiz giriş.");
+  if (String(info.email_verified) !== "true") throw authError_("Google e-posta adresi doğrulanmamış.");
+  if (!(exp > now)) throw authError_("Oturumun süresi doldu. Tekrar giriş yapın.");
+
+  var email = String(info.email || "").trim().toLowerCase();
+  if (!email) throw authError_("E-posta adresi alınamadı.");
+  cache.put(key, email, Math.max(1, Math.min(exp - now, 3600)));
+  return email;
+}
+
+function ownerEmail_() {
+  return String(Session.getEffectiveUser().getEmail() || "").trim().toLowerCase();
+}
+
+function allowedList_() {
+  var raw = PropertiesService.getScriptProperties().getProperty("ALLOWED_EMAILS");
+  var list;
+  try { list = JSON.parse(raw || "[]"); } catch (e) { list = []; }
+  if (!Array.isArray(list)) list = [];
+  var seen = {};
+  return list.map(function (x) { return String(x).trim().toLowerCase(); })
+    .filter(function (x) { if (!x || seen[x]) return false; seen[x] = true; return true; });
+}
+
+function saveAllowed_(list) {
+  PropertiesService.getScriptProperties().setProperty("ALLOWED_EMAILS", JSON.stringify(list));
+}
+
+function isAllowed_(email) {
+  if (!email) return false;
+  return email === ownerEmail_() || allowedList_().indexOf(email) !== -1;
+}
+
+var EMAIL_RE = /^[^\s@,;<>"']+@[^\s@,;<>"']+\.[a-z]{2,}$/;
+
+function accessAdd_(raw) {
+  var email = String(raw || "").trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) throw new Error("Geçerli bir e-posta adresi yazın.");
+  if (email === ownerEmail_()) throw new Error("Bu hesap zaten sahibi ve her zaman erişebilir.");
+  var list = allowedList_();
+  if (list.indexOf(email) !== -1) throw new Error("Bu adres zaten listede.");
+  if (list.length >= MAX_ALLOWED) throw new Error("Liste dolu (en fazla " + MAX_ALLOWED + ").");
+  list.push(email);
+  saveAllowed_(list);
+  return "Erişim eklendi: " + email;
+}
+
+function accessRemove_(raw) {
+  var email = String(raw || "").trim().toLowerCase();
+  if (email === ownerEmail_()) throw new Error("Sahibin erişimi kaldırılamaz.");
+  var list = allowedList_();
+  var i = list.indexOf(email);
+  if (i === -1) throw new Error("Bu adres listede yok.");
+  list.splice(i, 1);
+  saveAllowed_(list);
+  return "Erişim kaldırıldı: " + email;
+}
+
+// Wijzigingslog (laatste LOG_MAX regels) in de scripteigenschappen, niet in de
+// Sheet: die is voor iedereen leesbaar en dan zouden e-mailadressen uitlekken.
+function readLog_() {
+  try {
+    var list = JSON.parse(PropertiesService.getScriptProperties().getProperty("CHANGE_LOG") || "[]");
+    return Array.isArray(list) ? list : [];
+  } catch (e) {
+    return [];
   }
-  return "";
+}
+
+function log_(ss, email, what) {
+  try {
+    var list = readLog_();
+    list.unshift({ t: new Date().toISOString(), who: email, what: String(what).slice(0, 120) });
+    list = list.slice(0, LOG_MAX);
+    var json = JSON.stringify(list);
+    // Scripteigenschappen mogen per waarde maximaal ~9 kB zijn.
+    while (json.length > 8500 && list.length > 1) {
+      list = list.slice(0, Math.max(1, list.length - 10));
+      json = JSON.stringify(list);
+    }
+    PropertiesService.getScriptProperties().setProperty("CHANGE_LOG", json);
+  } catch (e) {
+    // Een mislukte logregel mag de wijziging zelf niet tegenhouden.
+  }
 }
 
 /* ---------- lezen ---------- */
@@ -211,8 +332,16 @@ function writeRow_(sheet, map, row, fields) {
 function updateItem_(sheet, req) {
   var map = columnMap_(sheet);
   var row = checkRow_(sheet, map, req.row, req.check);
-  validate_(req.fields || {});
-  writeRow_(sheet, map, row, req.fields || {});
+  var f = req.fields || {};
+  validate_(f);
+  writeRow_(sheet, map, row, f);
+  return "Güncellendi: " + f.urun + priceNote_(f);
+}
+
+function priceNote_(f) {
+  if (f.kucuk || f.buyuk) return " (" + (f.kucuk || "-") + " / " + (f.buyuk || "-") + ")";
+  if (f.fiyat) return " (" + f.fiyat + ")";
+  return "";
 }
 
 function addItem_(sheet, req) {
@@ -238,12 +367,15 @@ function addItem_(sheet, req) {
     }
   }
   writeRow_(sheet, map, target, fields);
+  return "Eklendi: " + fields.urun + priceNote_(fields);
 }
 
 function deleteItem_(sheet, req) {
   var map = columnMap_(sheet);
   var row = checkRow_(sheet, map, req.row, req.check);
+  var name = String(sheet.getRange(row, map.urun + 1).getDisplayValue());
   sheet.deleteRow(row);
+  return "Silindi: " + name;
 }
 
 // Eén plek omhoog (-1) of omlaag (+1), alleen binnen dezelfde categorie.
@@ -251,15 +383,16 @@ function moveItem_(sheet, req) {
   var map = columnMap_(sheet);
   var row = checkRow_(sheet, map, req.row, req.check);
   var other = row + (Number(req.direction) < 0 ? -1 : 1);
-  if (other < 2 || other > sheet.getLastRow()) return;
+  if (other < 2 || other > sheet.getLastRow()) return "";
   var width = sheet.getLastColumn();
   var a = sheet.getRange(row, 1, 1, width);
   var b = sheet.getRange(other, 1, 1, width);
   var av = a.getValues(), bv = b.getValues();
-  if (normalizeKey_(av[0][map.kategori]) !== normalizeKey_(bv[0][map.kategori])) return;
-  if (!String(bv[0][map.urun]).trim()) return; // notitierij blijft staan
+  if (normalizeKey_(av[0][map.kategori]) !== normalizeKey_(bv[0][map.kategori])) return "";
+  if (!String(bv[0][map.urun]).trim()) return ""; // notitierij blijft staan
   a.setValues(bv);
   b.setValues(av);
+  return "Taşındı: " + av[0][map.urun];
 }
 
 function updateSetting_(ss, req) {
@@ -274,11 +407,12 @@ function updateSetting_(ss, req) {
     for (var i = 0; i < keys.length; i++) {
       if (normalizeKey_(keys[i][0]) === normalizeKey_(key)) {
         st.getRange(i + 2, 2).setValue(value);
-        return;
+        return "Ayar: " + key + " = " + value;
       }
     }
   }
   st.appendRow([safeText_(key), value]);
+  return "Ayar: " + key + " = " + value;
 }
 
 function json_(obj) {

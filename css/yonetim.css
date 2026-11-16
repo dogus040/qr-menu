@@ -36,7 +36,7 @@ body.admin {
 
 /* Formulieren */
 label { font-size: 14px; color: var(--ink-soft); display: block; margin-top: 14px; }
-input[type="text"], input[type="password"], select {
+input[type="text"], input[type="password"], input[type="email"], select {
   display: block;
   width: 100%;
   font: inherit;
@@ -251,5 +251,28 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast.bad { background: #9b2a1a; }
+
+/* Google-login */
+.login-help { margin: 18px 0 12px; }
+.gsi-button { display: flex; justify-content: center; min-height: 44px; }
+.small-text { font-size: 13px; }
+.me { display: block; font-family: var(--serif-body); font-weight: 400; font-size: 12px; color: var(--ink-soft); }
+
+/* Erişim */
+.panel-title { font-family: var(--serif-display); font-weight: 500; font-size: 19px; margin: 0 0 4px; }
+.access-list, .log-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.access-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.access-list .tagline { font-size: 12px; color: var(--ink-soft); display: block; }
+.access-form { margin-top: 6px; }
+.log-list li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; overflow-wrap: anywhere; }
+.log-list .when { display: block; font-size: 12px; color: var(--ink-soft); }
 
 .empty { text-align: center; color: var(--ink-soft); font-style: italic; padding: 30px 0; }

@@ -294,8 +294,8 @@ body {
 }
 
 /* ------------------------------------------------------------------------
-   Achtergronden. Kiezen met de instelling "Arka Plan" in de sheet,
-   met arkaPlan in js/config.js, of om te testen met ?bg=naam in de link.
+   Achtergronden. Kiezen in de beheerpagina (Ayarlar → Arka plan); de server
+   zet data-bg op <html>. Bekijken zonder op te slaan: ?bg=naam in de link.
    kagit (standaard) · kahve · cini · kraft · espresso
    ------------------------------------------------------------------------ */
 

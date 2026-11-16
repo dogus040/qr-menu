@@ -1,0 +1,17 @@
+# Publieke menukaart: Cloudflare Pages-project "bimola" (https://bimola.pages.dev).
+# Statische bestanden uit ./public, de pagina's / en /qr worden door
+# Pages Functions (map ./functions) server-side opgebouwd uit D1.
+# Dit project NOOIT verwijderen: de geprinte QR-codes wijzen hiernaartoe.
+name = "bimola"
+pages_build_output_dir = "./public"
+compatibility_date = "2026-11-01"
+
+[vars]
+# Vast adres dat in de QR-code komt.
+PUBLIC_MENU_URL = "https://bimola.pages.dev/"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bimola"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
