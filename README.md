@@ -45,23 +45,29 @@ npm run dev:menu         # http://localhost:8788
 npm run dev:admin        # beheer lokaal; .dev.vars met test-instellingen (niet in git)
 ```
 
+`.dev.vars` (alleen lokaal) bevat: `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ACCESS_JWKS_JSON` (publieke testsleutel), `ACCESS_DIRECTORY=d1`, `OWNER_EMAILS`, `PUBLIC_MENU_URL`. Inloggen lokaal = een met de bijbehorende privésleutel getekend token als cookie `CF_Authorization`. Zie `vitest.config.ts` voor hetzelfde patroon in de tests.
+
+Snelle controle live: `https://bimola.pages.dev/` geeft 200 met het menu; `https://admin.bimola.workers.dev/` geeft 302 naar `tiny-smoke-594d.cloudflareaccess.com`. CI-status: `gh run list --limit 5` of de Actions-tab op GitHub.
+
 Databasewijzigingen alleen via een nieuw bestand in `migrations/` (nooit oude migraties aanpassen).
 
 ## Uitrollen
 
 - **Menukaart**: elke push naar `main` → Cloudflare Pages bouwt automatisch.
 - **Beheer + migraties**: GitHub Actions (`.github/workflows/ci.yml`) na groene tests op `main`. Secrets in GitHub: `CLOUDFLARE_API_TOKEN` (Workers Scripts: Edit, D1: Edit), `CLOUDFLARE_ACCOUNT_ID`.
-- Geheimen van de beheer-Worker (eenmalig): `npx wrangler secret put OWNER_EMAILS -c wrangler.admin.jsonc` en `npx wrangler secret put CF_API_TOKEN -c wrangler.admin.jsonc` (token met alleen "Access: Organizations, Identity Providers, and Groups: Edit").
+- Geheimen van de beheer-Worker (eenmalig): `npx wrangler secret put OWNER_EMAILS -c wrangler.admin.jsonc` en `npx wrangler secret put CF_API_TOKEN -c wrangler.admin.jsonc` (account-token met alleen "Access: Groups" Read + Edit).
 
 ## Backup en herstel
 
 - **Elke nacht** (`.github/workflows/backup.yml`): `backup/menu.json` (alle menutabellen) en `public/snapshot.json` worden gecommit. Geen e-mailadressen of log.
-- **D1 Time Travel**: herstel naar elk moment van de laatste 7 dagen: `npx wrangler d1 time-travel restore bimola --timestamp=<ISO-tijd>`.
+- **D1 Time Travel**: herstel naar elk moment van de laatste 7 dagen: `npx wrangler d1 time-travel restore bimola --timestamp=<ISO-tijd, bijv. 2026-11-16T08:00:00Z>`. Let op: dit zet de **hele** database terug, dus ook instellingen en het wijzigingslog. Eerst kijken: `npx wrangler d1 time-travel info bimola --timestamp=<ISO-tijd>`.
 - **Eén wijziging**: in de beheerpagina via Geçmiş → Geri al.
 
 ## Buitengesloten?
 
 De eigenaar staat in het geheim `OWNER_EMAILS` en in de Access-policy zelf, niet alleen in de groep. Lukt inloggen toch niet: in het Cloudflare-dashboard (met 2FA) Zero Trust → Access → de policy van Worker `admin` controleren, of `OWNER_EMAILS` opnieuw zetten met `wrangler secret put`.
+
+Eigenaar wijzigen: `npx wrangler secret put OWNER_EMAILS -c wrangler.admin.jsonc` (komma-gescheiden) én het e-mailadres aanpassen in de Access-policy "Bi Mola beheer" (Zero Trust → Access controls → Policies).
 
 ## Eenmalige inrichting (gedaan bij de overstap)
 
