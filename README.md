@@ -69,3 +69,4 @@ De eigenaar staat in het geheim `OWNER_EMAILS` en in de Access-policy zelf, niet
 2. Gegevens importeren: `node scripts/seed-from-csv.ts <menu.csv> <ayarlar.csv> > seed/seed.sql` en `npx wrangler d1 execute bimola --remote --file seed/seed.sql`.
 3. Pages-project `bimola`: D1-binding komt uit `wrangler.toml`.
 4. Zero Trust: teamnaam, login-methoden One-time PIN (+ Google), Access op de Worker `bimola-admin` (alle verkeer), groep "Bi Mola beheerders", policy = groep + eigenaar. AUD-tag en teamdomein in `wrangler.admin.jsonc`.
+5. Google-login: OAuth-client in Google Cloud-project "Bi Mola Login" (type Web, redirect `https://tiny-smoke-594d.cloudflareaccess.com/cdn-cgi/access/callback`). De Google-app staat op **Testing**: alleen e-mailadressen in Google Auth Platform → Audience → **Test users** kunnen "Inloggen met Google" gebruiken. Nieuwe beheerders kunnen altijd inloggen met de e-mailcode; voor Google ook daar toevoegen.
