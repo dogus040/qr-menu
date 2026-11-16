@@ -48,6 +48,21 @@ Tip: zet af en toe een kopie van de sheet in `data/menu.csv` en `data/ayarlar.cs
 
 Maak de links in `js/config.js` leeg (`""`) en pas `data/menu.csv` direct aan op github.com. Na opslaan staat de wijziging binnen ongeveer een minuut online.
 
+## Beheerpagina (`/yonetim`)
+
+`https://bimola.pages.dev/yonetim` is een Turkse beheerpagina voor de telefoon: prijzen wijzigen, producten toevoegen, verwijderen, verplaatsen, op "tükendi" zetten en de instellingen (`ayarlar`) aanpassen. Inloggen met een PIN. De pagina schrijft via een Google Apps Script-web-app (`apps-script/Code.gs`) rechtstreeks in de Google Sheet.
+
+Eenmalige installatie door de eigenaar van de Sheet:
+
+1. Open de Sheet → **Extensies → Apps Script**. Vervang de inhoud van `Code.gs` door `apps-script/Code.gs` en sla op.
+2. **Projectinstellingen** (tandwiel) → **Scripteigenschappen** → eigenschap `ADMIN_PIN` met een PIN van minstens 6 cijfers.
+3. **Implementeren → Nieuwe implementatie** → type **Web-app**. Uitvoeren als: **Ik**. Toegang: **Iedereen**. Toestemming geven (bij "Google heeft deze app niet geverifieerd": Geavanceerd → doorgaan; het is je eigen script).
+4. Kopieer de web-app-URL (eindigt op `/exec`) en zet die in `js/config.js` bij `adminApiUrl`.
+
+Na een wijziging in `Code.gs`: **Implementeren → Implementaties beheren → bewerken → Nieuwe versie**, dan blijft de URL gelijk. PIN wijzigen kan altijd in de scripteigenschappen. Na 8 foute PIN-pogingen gaat de pagina 15 minuten op slot.
+
+Test van de scriptlogica (zonder Google): `node tests/code_gs.test.js`.
+
 ## Lokaal bekijken
 
 ```bash

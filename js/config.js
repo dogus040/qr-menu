@@ -8,6 +8,8 @@
 window.MENU_CONFIG = {
   // Adres waar de QR-code naartoe wijst.
   menuUrl: "https://bimola.pages.dev/",
+  // Web-app-URL van apps-script/Code.gs (beheerpagina /yonetim). Leeg = nog niet ingesteld.
+  adminApiUrl: "",
   // Achtergrond: kagit, kahve, cini, kraft of espresso.
   // Een regel "Arka Plan" in het tabblad ayarlar van de sheet gaat hiervoor.
   arkaPlan: "kraft",

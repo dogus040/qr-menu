@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#d4b88f">
+  <title>Bi Mola · Yönetim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/yonetim.css">
+  <script src="js/config.js"></script>
+  <script src="js/theme.js"></script>
+</head>
+<body class="admin">
+  <!-- Giriş -->
+  <section id="view-login" class="view">
+    <form id="login-form" class="panel login" autocomplete="off">
+      <div class="ornament" aria-hidden="true">&#10086;</div>
+      <h1>Bi Mola</h1>
+      <p class="muted">Menü yönetimi</p>
+      <label for="pin">PIN kodu</label>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+      <button type="submit" class="btn primary wide">Giriş</button>
+      <p id="login-error" class="error" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Ana ekran -->
+  <section id="view-app" class="view" hidden>
+    <header class="topbar">
+      <div class="brand">Bi Mola <span class="muted">· Yönetim</span></div>
+      <div class="top-actions">
+        <a class="btn ghost small" href="./" target="_blank" rel="noopener">Menüyü aç</a>
+        <button id="logout" type="button" class="btn ghost small">Çıkış</button>
+      </div>
+    </header>
+    <nav class="tabs" role="tablist">
+      <button type="button" class="tab active" data-tab="menu" role="tab">Menü</button>
+      <button type="button" class="tab" data-tab="settings" role="tab">Ayarlar</button>
+    </nav>
+
+    <main id="tab-menu" class="tab-body">
+      <div id="menu-list"></div>
+      <button id="add-new" type="button" class="btn primary wide">+ Yeni ürün</button>
+    </main>
+
+    <main id="tab-settings" class="tab-body" hidden>
+      <div id="settings-list"></div>
+    </main>
+  </section>
+
+  <!-- Düzenleme -->
+  <section id="view-edit" class="view" hidden>
+    <header class="topbar">
+      <button id="edit-back" type="button" class="btn ghost small">&larr; Geri</button>
+      <div class="brand" id="edit-title">Ürün</div>
+      <span></span>
+    </header>
+    <form id="edit-form" class="panel edit" autocomplete="off" novalidate>
+      <label for="f-urun">Ürün adı</label>
+      <input id="f-urun" type="text" maxlength="80" required>
+
+      <label for="f-kategori">Kategori</label>
+      <select id="f-kategori"></select>
+      <input id="f-kategori-new" type="text" maxlength="40" placeholder="Yeni kategori adı" hidden>
+
+      <fieldset class="price-type">
+        <legend>Fiyat</legend>
+        <label class="radio"><input type="radio" name="ptype" value="single" checked> Tek fiyat</label>
+        <label class="radio"><input type="radio" name="ptype" value="sizes"> İki boy (Küçük / Büyük)</label>
+      </fieldset>
+      <div id="price-single" class="price-row">
+        <label>Fiyat (₺)<input id="f-fiyat" type="text" inputmode="decimal" maxlength="10"></label>
+      </div>
+      <div id="price-sizes" class="price-row" hidden>
+        <label>Küçük (₺)<input id="f-kucuk" type="text" inputmode="decimal" maxlength="10"></label>
+        <label>Büyük (₺)<input id="f-buyuk" type="text" inputmode="decimal" maxlength="10"></label>
+      </div>
+
+      <label for="f-aciklama">Açıklama <span class="muted">(isteğe bağlı)</span></label>
+      <input id="f-aciklama" type="text" maxlength="160">
+
+      <label class="switch-row">
+        <span>Satışta <span class="muted">(kapalı = tükendi, menüde görünmez)</span></span>
+        <input id="f-goster" type="checkbox" class="switch" checked>
+      </label>
+
+      <div class="chips-block">
+        <span class="chips-label">Etiketler</span>
+        <div id="f-etiket" class="chips"></div>
+      </div>
+      <div class="chips-block">
+        <span class="chips-label">Alerjenler</span>
+        <div id="f-alerjen" class="chips"></div>
+      </div>
+
+      <p id="edit-error" class="error" role="alert"></p>
+      <button type="submit" class="btn primary wide" id="edit-save">Kaydet</button>
+
+      <div id="edit-extra" class="edit-extra">
+        <div class="move">
+          <button type="button" class="btn ghost" id="move-up">&uarr; Yukarı</button>
+          <button type="button" class="btn ghost" id="move-down">&darr; Aşağı</button>
+        </div>
+        <button type="button" class="btn danger" id="edit-delete">Ürünü sil</button>
+      </div>
+    </form>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/yonetim.js"></script>
+</body>
+</html>
