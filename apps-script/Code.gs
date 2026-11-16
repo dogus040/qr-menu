@@ -1,11 +1,12 @@
 /**
  * Bi Mola – menü yönetimi (beheerpagina-API)
  * ---------------------------------------------------------------------------
- * Google Apps Script, gekoppeld aan de Google Sheet "Bi Mola – Menü"
- * (Extensies → Apps Script). De pagina bimola.pages.dev/yonetim praat hiermee.
+ * Google Apps Script voor de Google Sheet "Bi Mola – Menü" (SHEET_ID hieronder).
+ * De pagina bimola.pages.dev/yonetim praat hiermee.
  *
  * Installatie (eenmalig, door de eigenaar van de Sheet):
- *   1. Plak dit bestand in Extensies → Apps Script (vervang de inhoud van Code.gs).
+ *   1. script.google.com → Nieuw project (of Extensies → Apps Script in de Sheet),
+ *      plak dit bestand in Code.gs.
  *   2. Projectinstellingen → Scripteigenschappen → eigenschap ADMIN_PIN met de PIN.
  *   3. Implementeren → Nieuwe implementatie → Web-app,
  *      Uitvoeren als: Ik, Toegang: Iedereen. Kopieer de web-app-URL.
@@ -14,6 +15,10 @@
  * Geen geheimen in dit bestand: de PIN staat alleen in de scripteigenschappen.
  */
 
+// ID van de Google Sheet "Bi Mola – Menü" (uit de link: /spreadsheets/d/<ID>/edit).
+// Wordt gebruikt als het script los staat; een script via Extensies → Apps Script
+// gebruikt automatisch zijn eigen Sheet.
+var SHEET_ID = "1WMBCNGtdqOYoTtWO3RERnBfEVjyKoajX4JKQ2dgdHfU";
 var MENU_SHEET = "menu";
 var SETTINGS_SHEET = "ayarlar";
 var MAX_FAILS = 8;          // foute PIN-pogingen voordat alles even op slot gaat
@@ -58,8 +63,13 @@ function doPost(e) {
   }
 }
 
+function book_() {
+  var active = SpreadsheetApp.getActiveSpreadsheet();
+  return active || SpreadsheetApp.openById(SHEET_ID);
+}
+
 function handle_(req) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = book_();
   var sheet = ss.getSheetByName(MENU_SHEET);
   if (!sheet) throw new Error('"' + MENU_SHEET + '" sekmesi bulunamadı.');
 
