@@ -3,7 +3,7 @@
 // De menukaart leest het menu uit deze Google Sheet ("Iedereen met de link mag
 // bekijken"). Laat een link leeg ("") om het bestand in de map data/ te gebruiken.
 //
-// Sheet: https://docs.google.com/spreadsheets/d/1UEMbSL-tcQcfzTUzC9VMaLQAlipFxiKWa44cfthKvdg/edit
+// Sheet: https://docs.google.com/spreadsheets/d/1WMBCNGtdqOYoTtWO3RERnBfEVjyKoajX4JKQ2dgdHfU/edit
 // gid = het nummer achter "#gid=" in de adresbalk wanneer het tabblad open staat.
 window.MENU_CONFIG = {
   // Adres waar de QR-code naartoe wijst.
@@ -11,6 +11,6 @@ window.MENU_CONFIG = {
   // Achtergrond: kagit, kahve, cini, kraft of espresso.
   // Een regel "Arka Plan" in het tabblad ayarlar van de sheet gaat hiervoor.
   arkaPlan: "kraft",
-  menuCsvUrl: "https://docs.google.com/spreadsheets/d/1UEMbSL-tcQcfzTUzC9VMaLQAlipFxiKWa44cfthKvdg/export?format=csv&gid=907230277",
-  ayarlarCsvUrl: "https://docs.google.com/spreadsheets/d/1UEMbSL-tcQcfzTUzC9VMaLQAlipFxiKWa44cfthKvdg/export?format=csv&gid=1680754422"
+  menuCsvUrl: "https://docs.google.com/spreadsheets/d/1WMBCNGtdqOYoTtWO3RERnBfEVjyKoajX4JKQ2dgdHfU/export?format=csv&gid=1533908302",
+  ayarlarCsvUrl: "https://docs.google.com/spreadsheets/d/1WMBCNGtdqOYoTtWO3RERnBfEVjyKoajX4JKQ2dgdHfU/export?format=csv&gid=824941840"
 };

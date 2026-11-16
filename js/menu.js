@@ -40,12 +40,22 @@
     });
   }
 
+  function hasSizes(item) {
+    return Boolean(item.priceSmall || item.priceLarge);
+  }
+
   function renderItem(item, currency) {
     var li = el("li", "item");
     var line = el("div", "item-line");
     line.appendChild(el("span", "item-name", item.name));
     line.appendChild(el("span", "item-leader"));
-    line.appendChild(el("span", "item-price", formatPrice(item.price, currency)));
+    if (hasSizes(item)) {
+      // Twee kolommen (Küçük, Büyük); een lege maat blijft als lege kolom staan.
+      line.appendChild(el("span", "item-price item-price-size", formatPrice(item.priceSmall, currency)));
+      line.appendChild(el("span", "item-price item-price-size", formatPrice(item.priceLarge, currency)));
+    } else {
+      line.appendChild(el("span", "item-price", formatPrice(item.price, currency)));
+    }
     li.appendChild(line);
 
     if (item.description) li.appendChild(el("p", "item-desc", item.description));
@@ -78,6 +88,14 @@
       title.appendChild(el("span", null, cat.name));
       section.appendChild(title);
       if (cat.note) section.appendChild(el("p", "category-note", cat.note));
+
+      // Kopjes boven de prijskolommen als deze categorie maten heeft.
+      if (cat.items.some(hasSizes)) {
+        var head = el("div", "size-head");
+        head.appendChild(el("span", "size-label", settings.kucukboyetiketi || "Küçük"));
+        head.appendChild(el("span", "size-label", settings.buyukboyetiketi || "Büyük"));
+        section.appendChild(head);
+      }
 
       var list = el("ul", "items");
       cat.items.forEach(function (item) { list.appendChild(renderItem(item, currency)); });

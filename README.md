@@ -23,6 +23,7 @@ Het menu staat in twee tabellen:
 | Ürün | Naam van het gerecht. Laat leeg om een notitie bij de categorie te zetten (tekst in Açıklama). |
 | Açıklama | Korte omschrijving (optioneel). |
 | Fiyat | Alleen het getal, bijv. `250` of `12,50`. Het valutateken komt er vanzelf achter. |
+| Küçük / Büyük | Voor drankjes met twee maten: vul deze twee in en laat Fiyat leeg. De kaart toont dan twee prijskolommen. |
 | Etiket | Labels, met komma's: `Vejetaryen`, `Vegan`, `Acılı`, `Şefin Önerisi`, `Yeni`. |
 | Alerjen | Allergenen, met komma's (optioneel). |
 | Göster | `hayır` = tijdelijk verbergen (bijv. op). Leeg of `evet` = tonen. |
@@ -33,7 +34,7 @@ Vijf achtergronden: `kagit`, `kahve`, `cini`, `kraft`, `espresso`. Bekijken zond
 
 ### Google Sheet
 
-De kaart leest het menu uit de Google Sheet **QR Menü – Bi Mola** (tabbladen `menu` en `ayarlar`). Pas de sheet aan, op de computer of in de Google Sheets-app op uw telefoon; gasten zien de wijziging zodra ze de kaart (opnieuw) openen.
+De kaart leest het menu uit de Google Sheet **Bi Mola – Menü** (tabbladen `menu` en `ayarlar`). Pas de sheet aan, op de computer of in de Google Sheets-app op uw telefoon; gasten zien de wijziging zodra ze de kaart (opnieuw) openen.
 
 Voorwaarden, anders valt de kaart terug op de bestanden in `data/`:
 

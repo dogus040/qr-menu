@@ -53,6 +53,8 @@
     urun: ["urun", "urunadi", "yemek", "isim", "ad"],
     aciklama: ["aciklama", "icerik"],
     fiyat: ["fiyat", "ucret"],
+    kucuk: ["kucuk", "kucukboy", "fiyatkucuk"],
+    buyuk: ["buyuk", "buyukboy", "fiyatbuyuk"],
     etiket: ["etiket", "etiketler"],
     alerjen: ["alerjen", "alerjenler"],
     goster: ["goster", "aktif", "gorunur"]
@@ -112,6 +114,9 @@
         name: it.urun,
         description: it.aciklama,
         price: it.fiyat,
+        // Twee maten: Küçük / Büyük. Leeg = alleen de gewone Fiyat.
+        priceSmall: it.kucuk,
+        priceLarge: it.buyuk,
         tags: splitList(it.etiket),
         allergens: splitList(it.alerjen)
       });

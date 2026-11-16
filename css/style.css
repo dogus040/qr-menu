@@ -213,6 +213,28 @@ body {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
+/* Twee maten (Küçük / Büyük): vaste kolommen zodat de prijzen onder elkaar staan. */
+.item-price-size,
+.size-label {
+  width: 72px;
+  flex: none;
+  text-align: right;
+}
+
+.size-head {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 10px 0 -6px;
+}
+
+.size-label {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
 .item-desc {
   margin: 2px 0 0;
   font-style: italic;
