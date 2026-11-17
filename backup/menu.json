@@ -2,7 +2,7 @@
   "settings": [
     {
       "key": "address",
-      "value": "Örnek Cadde No: 1, İstanbul"
+      "value": "Mehmet Akif Mah. Fatih Bulv. No: 258/A"
     },
     {
       "key": "currency",
@@ -14,15 +14,15 @@
     },
     {
       "key": "hours",
-      "value": "Her gün 09:00 - 23:00"
+      "value": "Her gün 06:00 - 23:00"
     },
     {
       "key": "instagram",
-      "value": ""
+      "value": "bimolacafee"
     },
     {
       "key": "phone",
-      "value": "+90 212 000 00 00"
+      "value": ""
     },
     {
       "key": "restaurant_name",
@@ -31,6 +31,10 @@
     {
       "key": "subtitle",
       "value": "Şehrin telaşına kısa bi mola"
+    },
+    {
+      "key": "theme",
+      "value": "kraft"
     }
   ],
   "categories": [
@@ -65,6 +69,14 @@
       "visible": 1,
       "position": 40,
       "deleted_at": null
+    },
+    {
+      "id": 5,
+      "name": "SANDVİÇLER",
+      "note": "",
+      "visible": 1,
+      "position": 50,
+      "deleted_at": null
     }
   ],
   "items": [
@@ -79,6 +91,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 10,
       "deleted_at": null
     },
@@ -93,6 +106,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 20,
       "deleted_at": null
     },
@@ -107,6 +121,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 30,
       "deleted_at": null
     },
@@ -121,6 +136,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 40,
       "deleted_at": null
     },
@@ -135,6 +151,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 50,
       "deleted_at": null
     },
@@ -149,6 +166,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 60,
       "deleted_at": null
     },
@@ -163,6 +181,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 70,
       "deleted_at": null
     },
@@ -177,6 +196,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 80,
       "deleted_at": null
     },
@@ -191,6 +211,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 10,
       "deleted_at": null
     },
@@ -205,6 +226,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 20,
       "deleted_at": null
     },
@@ -219,7 +241,38 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 30,
+      "deleted_at": null
+    },
+    {
+      "id": 20,
+      "category_id": 2,
+      "name": "Iced White Chocolate",
+      "description": "",
+      "price": 22000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[]",
+      "allergen_text": "",
+      "position": 33,
+      "deleted_at": null
+    },
+    {
+      "id": 21,
+      "category_id": 2,
+      "name": "Iced Hazelnut Latte",
+      "description": "",
+      "price": 22000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[]",
+      "allergen_text": "",
+      "position": 36,
       "deleted_at": null
     },
     {
@@ -233,13 +286,14 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 40,
       "deleted_at": null
     },
     {
       "id": 13,
       "category_id": 2,
-      "name": "Iced Toffee Nut",
+      "name": "Iced Toffee Nut Latte",
       "description": "",
       "price": 22000,
       "price_small": null,
@@ -247,6 +301,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[\"Süt\"]",
+      "allergen_text": "",
       "position": 50,
       "deleted_at": null
     },
@@ -261,6 +316,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[]",
+      "allergen_text": "",
       "position": 10,
       "deleted_at": null
     },
@@ -275,6 +331,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[]",
+      "allergen_text": "",
       "position": 20,
       "deleted_at": null
     },
@@ -289,7 +346,23 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[]",
+      "allergen_text": "",
       "position": 30,
+      "deleted_at": null
+    },
+    {
+      "id": 23,
+      "category_id": 3,
+      "name": "Iced Americano",
+      "description": "",
+      "price": 19000,
+      "price_small": null,
+      "price_large": null,
+      "available": 0,
+      "tags": "[]",
+      "allergens": "[]",
+      "allergen_text": "",
+      "position": 40,
       "deleted_at": null
     },
     {
@@ -303,6 +376,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[]",
+      "allergen_text": "",
       "position": 10,
       "deleted_at": null
     },
@@ -317,6 +391,7 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[]",
+      "allergen_text": "",
       "position": 20,
       "deleted_at": null
     },
@@ -331,7 +406,23 @@
       "available": 1,
       "tags": "[]",
       "allergens": "[]",
+      "allergen_text": "",
       "position": 30,
+      "deleted_at": null
+    },
+    {
+      "id": 22,
+      "category_id": 5,
+      "name": "KLASİK SANDVİÇ",
+      "description": "EZMELER DOMATES SALATALIK BEYAZ PEYNİR YEŞİLLİK",
+      "price": 14000,
+      "price_small": null,
+      "price_large": null,
+      "available": 1,
+      "tags": "[]",
+      "allergens": "[]",
+      "allergen_text": "",
+      "position": 10,
       "deleted_at": null
     }
   ]
