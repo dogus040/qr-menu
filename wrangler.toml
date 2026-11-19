@@ -5,10 +5,7 @@
 name = "bimola"
 pages_build_output_dir = "./public"
 compatibility_date = "2026-11-01"
-
-[vars]
-# Vast adres dat in de QR-code komt.
-PUBLIC_MENU_URL = "https://menu.bimolakafe.com/"
+# Het menu-adres voor de QR-code (PUBLIC_MENU_URL) staat in wrangler.admin.jsonc: alleen het beheer gebruikt het.
 
 [[d1_databases]]
 binding = "DB"
