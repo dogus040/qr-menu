@@ -216,11 +216,11 @@ describe("QR-tabblad", () => {
   it("alleen de eigenaar mag de menulink op de kaartjes wijzigen", async () => {
     let s = await state();
     expect(s.isOwner).toBe(true);
-    expect(s.publicMenuUrl).toBe("https://bimola.pages.dev/");
+    expect(s.publicMenuUrl).toBe("https://menu.bimolakafe.com/");
     await call("/api/access/add", { body: { email: "emre@gmail.com" } });
     s = await state("emre@gmail.com");
     expect(s.isOwner).toBe(false);
-    expect(s.publicMenuUrl).toBe("https://bimola.pages.dev/");
+    expect(s.publicMenuUrl).toBe("https://menu.bimolakafe.com/");
   });
 
   it("geen aparte QR-pagina meer; de beheerpagina mag alleen het vastgepinde QR-script laden", async () => {

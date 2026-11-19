@@ -13,7 +13,7 @@ const fakeAssets = (snapshot: unknown | null) =>
         : new Response("not found", { status: 404 })
   }) as unknown as Fetcher;
 
-async function render(url = "https://bimola.pages.dev/", db: D1Database = env.DB, snapshot: unknown = null) {
+async function render(url = "https://menu.bimolakafe.com/", db: D1Database = env.DB, snapshot: unknown = null) {
   // Eigen context: createPagesEventContext gebruikt altijd de globale env.
   const ctx = {
     request: new Request(url),
@@ -86,8 +86,8 @@ describe("menukaart", () => {
   });
 
   it("?bg= toont een ander thema zonder op te slaan; onzin wordt genegeerd", async () => {
-    expect((await render("https://bimola.pages.dev/?bg=espresso")).html).toContain('data-bg="espresso"');
-    expect((await render("https://bimola.pages.dev/?bg=<x>")).html).toContain('data-bg="kraft"');
+    expect((await render("https://menu.bimolakafe.com/?bg=espresso")).html).toContain('data-bg="espresso"');
+    expect((await render("https://menu.bimolakafe.com/?bg=<x>")).html).toContain('data-bg="kraft"');
   });
 
   it("valt terug op de momentopname als D1 faalt", async () => {

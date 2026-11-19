@@ -1,20 +1,24 @@
 # Bi Mola – QR-menukaart
 
-Turkse digitale menukaart (kraft-stijl) voor Bi Mola, met een beheerpagina voor de telefoon. Alles draait gratis op Cloudflare.
+Turkse digitale menukaart (kraft-stijl) voor Bi Mola, met een beheerpagina voor de telefoon. Alles draait gratis op Cloudflare; alleen het eigen domein `bimolakafe.com` kost geld (± $11/jaar).
 
 | Onderdeel | Adres | Waar |
 |---|---|---|
-| Menukaart (QR-code) | `https://bimola.pages.dev/` | Cloudflare Pages-project `bimola` (+ Pages Functions) |
-| Beheerpagina | `https://admin.bimola.workers.dev/` | Worker `admin`, achter Cloudflare Access |
+| Menukaart (QR-code) | `https://menu.bimolakafe.com/` | Cloudflare Pages-project `bimola` (+ Pages Functions), custom domain |
+| Beheerpagina | `https://admin.bimolakafe.com/` | Worker `admin` (custom domain), achter Cloudflare Access |
 | QR-kaartjes printen | tabblad **QR** in de beheerpagina | idem, alleen na inloggen |
 | Data | – | Cloudflare D1-database `bimola` |
 
-Het Pages-project `bimola` **nooit verwijderen**: de geprinte QR-codes wijzen ernaar, en een vrijgekomen naam kan door iemand anders worden geclaimd.
+**Waarom een eigen domein:** in Turkije zijn `*.pages.dev` en `*.workers.dev` als geheel geblokkeerd (sinds november 2025, opnieuw gemeld augustus 2026). De oude adressen `bimola.pages.dev` en `admin.bimola.workers.dev` werken nog wel buiten Turkije. `bimolakafe.com` en `www.bimolakafe.com` sturen door naar het menu.
+
+**Domein:** `bimolakafe.com`, gekocht via Cloudflare Registrar op 2026-11-19, verloopt 2027-11-19, automatisch verlengen aan. Laat het nooit verlopen: dan werken de QR-kaartjes niet meer.
+
+Het Pages-project `bimola` **nooit verwijderen**: het eigen domein hangt eraan, en een vrijgekomen naam kan door iemand anders worden geclaimd.
 
 ## Hoe het werkt
 
 ```
-Gast ──► bimola.pages.dev ──(alleen lezen)──► D1 ◄──(lezen + schrijven)── admin ◄── Cloudflare Access ◄── Dogus / Emre
+Gast ──► menu.bimolakafe.com ──(alleen lezen)──► D1 ◄──(lezen + schrijven)── admin ◄── Cloudflare Access ◄── Dogus / Emre
 ```
 
 - **`/qr` op de menukaart** bestaat niet meer: `functions/qr.ts` geeft 404 zonder caching, zodat een oude kopie uit de Cloudflare-cache niet terugkomt.
@@ -37,7 +41,7 @@ Open de beheerpagina en log in met Google of een e-mailcode (alleen adressen op 
 - **Geçmiş**: laatste wijzigingen, terugdraaien, prullenbak.
 - **QR**: tafelkaartjes printen (4 per A4) of de QR-code als PNG downloaden. De menulink kan alleen de eigenaar wijzigen.
 
-Thema bekijken zonder op te slaan: `https://bimola.pages.dev/?bg=kahve` (kagit, kahve, cini, kraft, espresso).
+Thema bekijken zonder op te slaan: `https://menu.bimolakafe.com/?bg=kahve` (kagit, kahve, cini, kraft, espresso).
 
 ## Ontwikkelen
 
@@ -51,7 +55,7 @@ npm run dev:admin        # beheer lokaal; .dev.vars met test-instellingen (niet 
 ```
 `.dev.vars` (alleen lokaal) bevat: `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ACCESS_JWKS_JSON` (publieke testsleutel), `ACCESS_DIRECTORY=d1`, `OWNER_EMAILS`, `PUBLIC_MENU_URL`. Inloggen lokaal = een met de bijbehorende privésleutel getekend token als cookie `CF_Authorization`. Zie `vitest.config.ts` voor hetzelfde patroon in de tests.
 
-Snelle controle live: `https://bimola.pages.dev/` geeft 200 met het menu; `https://admin.bimola.workers.dev/` geeft 302 naar `tiny-smoke-594d.cloudflareaccess.com`. CI-status: `gh run list --limit 5` of de Actions-tab op GitHub.
+Snelle controle live: `https://menu.bimolakafe.com/` geeft 200 met het menu; `https://admin.bimolakafe.com/` geeft 302 naar `tiny-smoke-594d.cloudflareaccess.com`; `https://bimolakafe.com/` stuurt door naar het menu. Vanuit Turkije testen: check-host.net (nodes tr1/tr2) of iemand op een Turks netwerk. CI-status: `gh run list --limit 5` of de Actions-tab op GitHub.
 
 Databasewijzigingen alleen via een nieuw bestand in `migrations/` (nooit oude migraties aanpassen).
 
@@ -79,4 +83,5 @@ Eigenaar wijzigen: `npx wrangler secret put OWNER_EMAILS -c wrangler.admin.jsonc
 2. Gegevens importeren: `node scripts/seed-from-csv.ts <menu.csv> <ayarlar.csv> > seed/seed.sql` en `npx wrangler d1 execute bimola --remote --file seed/seed.sql`.
 3. Pages-project `bimola`: D1-binding komt uit `wrangler.toml`.
 4. Zero Trust: teamnaam, login-methoden One-time PIN (+ Google), Access op de Worker `admin` (alle verkeer; account-subdomein `bimola.workers.dev`), groep "Bi Mola beheerders", policy = groep + eigenaar. AUD-tag en teamdomein in `wrangler.admin.jsonc`.
-5. Google-login: OAuth-client in Google Cloud-project "Bi Mola Login" (type Web, redirect `https://tiny-smoke-594d.cloudflareaccess.com/cdn-cgi/access/callback`). De Google-app staat op **Testing**: alleen e-mailadressen in Google Auth Platform → Audience → **Test users** kunnen "Inloggen met Google" gebruiken. Nieuwe beheerders kunnen altijd inloggen met de e-mailcode; voor Google ook daar toevoegen.
+5. Eigen domein (2026-11-19): `bimolakafe.com` via Cloudflare Registrar in hetzelfde account. Menu: Pages-project `bimola` → Custom domains → `menu.bimolakafe.com`. Beheer: `routes` met `custom_domain: true` in `wrangler.admin.jsonc` (uitrol via CI) én de hostname `admin.bimolakafe.com` toegevoegd aan de Access-applicatie van Worker `admin`. Hoofddomein en `www`: proxied placeholder-records (AAAA `100::`) + Redirect Rule naar `https://menu.bimolakafe.com/`.
+6. Google-login: OAuth-client in Google Cloud-project "Bi Mola Login" (type Web, redirect `https://tiny-smoke-594d.cloudflareaccess.com/cdn-cgi/access/callback`). De Google-app staat op **Testing**: alleen e-mailadressen in Google Auth Platform → Audience → **Test users** kunnen "Inloggen met Google" gebruiken. Nieuwe beheerders kunnen altijd inloggen met de e-mailcode; voor Google ook daar toevoegen.

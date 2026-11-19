@@ -25,7 +25,7 @@ export default defineConfig(async () => {
             ACCESS_DIRECTORY: "d1",
             OWNER_EMAILS: "owner@example.com",
             // Vast zetten: anders wint een lokale .dev.vars.
-            PUBLIC_MENU_URL: "https://bimola.pages.dev/"
+            PUBLIC_MENU_URL: "https://menu.bimolakafe.com/"
           }
         }
       })
