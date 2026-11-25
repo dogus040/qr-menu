@@ -9,7 +9,9 @@ Turkse digitale menukaart (kraft-stijl) voor Bi Mola, met een beheerpagina voor 
 | QR-kaartjes printen | tabblad **QR** in de beheerpagina | idem, alleen na inloggen |
 | Data | – | Cloudflare D1-database `bimola` |
 
-**Waarom een eigen domein:** in Turkije zijn `*.pages.dev` en `*.workers.dev` als geheel geblokkeerd (sinds november 2025, opnieuw gemeld augustus 2026). De oude adressen `bimola.pages.dev` en `admin.bimola.workers.dev` werken nog wel buiten Turkije. `bimolakafe.com` en `www.bimolakafe.com` sturen door naar het menu.
+**Waarom een eigen domein:** in Turkije zijn `*.pages.dev` en `*.workers.dev` als geheel geblokkeerd (sinds november 2025, opnieuw gemeld augustus 2026). `bimolakafe.com` en `www.bimolakafe.com` sturen door naar het menu.
+
+**Oude adressen (opgeruimd 2026-11-25):** `admin.bimola.workers.dev` staat uit (`"workers_dev": false` in `wrangler.admin.jsonc`). `bimola.pages.dev` kan niet weg (het hoort vast bij het Pages-project), dus `functions/_middleware.ts` stuurt het, en de versie-adressen `<code>.bimola.pages.dev`, permanent (301) door naar `https://menu.bimolakafe.com` met pad en parameters.
 
 **Domein:** `bimolakafe.com`, gekocht via Cloudflare Registrar op 2026-11-19, verloopt 2027-11-19, automatisch verlengen aan. Laat het nooit verlopen: dan werken de QR-kaartjes niet meer.
 
@@ -82,6 +84,6 @@ Eigenaar wijzigen: `npx wrangler secret put OWNER_EMAILS -c wrangler.admin.jsonc
 1. `npx wrangler d1 create bimola --location eeur` → ID in `wrangler.toml` en `wrangler.admin.jsonc`; `npm run db:migrate:remote`.
 2. Gegevens importeren: `node scripts/seed-from-csv.ts <menu.csv> <ayarlar.csv> > seed/seed.sql` en `npx wrangler d1 execute bimola --remote --file seed/seed.sql`.
 3. Pages-project `bimola`: D1-binding komt uit `wrangler.toml`.
-4. Zero Trust: teamnaam, login-methoden One-time PIN (+ Google), Access op de Worker `admin` (alle verkeer; account-subdomein `bimola.workers.dev`), groep "Bi Mola beheerders", policy = groep + eigenaar. AUD-tag en teamdomein in `wrangler.admin.jsonc`.
+4. Zero Trust: teamnaam, login-methoden One-time PIN (+ Google), Access op de Worker `admin` (eerst via het account-subdomein `bimola.workers.dev`, inmiddels uitgezet; nu hostname `admin.bimolakafe.com`), groep "Bi Mola beheerders", policy = groep + eigenaar. AUD-tag en teamdomein in `wrangler.admin.jsonc`.
 5. Eigen domein (2026-11-19): `bimolakafe.com` via Cloudflare Registrar in hetzelfde account. Menu: Pages-project `bimola` → Custom domains → `menu.bimolakafe.com`. Beheer: `routes` met `custom_domain: true` in `wrangler.admin.jsonc` (uitrol via CI) én de hostname `admin.bimolakafe.com` toegevoegd aan de Access-applicatie van Worker `admin`. Hoofddomein en `www`: proxied placeholder-records (AAAA `100::`) + Redirect Rule naar `https://menu.bimolakafe.com/`.
 6. Google-login: OAuth-client in Google Cloud-project "Bi Mola Login" (type Web, redirect `https://tiny-smoke-594d.cloudflareaccess.com/cdn-cgi/access/callback`). De Google-app staat op **Testing**: alleen e-mailadressen in Google Auth Platform → Audience → **Test users** kunnen "Inloggen met Google" gebruiken. Nieuwe beheerders kunnen altijd inloggen met de e-mailcode; voor Google ook daar toevoegen.

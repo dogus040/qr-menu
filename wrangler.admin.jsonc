@@ -1,12 +1,13 @@
-// Beheerpagina: Worker "admin" op https://admin.bimolakafe.com (eigen domein, werkt ook in Turkije) en
-// https://admin.bimola.workers.dev (in Turkije geblokkeerd), beide volledig achter Cloudflare Access.
+// Beheerpagina: Worker "admin" op https://admin.bimolakafe.com (eigen domein, werkt ook in Turkije),
+// volledig achter Cloudflare Access.
 // Geheimen (niet in deze repo): OWNER_EMAILS, CF_API_TOKEN  →  wrangler secret put … -c wrangler.admin.jsonc
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "admin",
   "main": "src/admin/index.ts",
   "compatibility_date": "2026-11-01",
-  "workers_dev": true,
+  // Oud adres admin.bimola.workers.dev uitgezet (Dogus, 2026-11-25): alleen het eigen domein.
+  "workers_dev": false,
   // Eigen domein: Cloudflare maakt DNS-record en certificaat aan. De hostname moet ook in de Access-app staan.
   "routes": [{ "pattern": "admin.bimolakafe.com", "custom_domain": true }],
   // Preview-URL's zouden buiten de Access-bescherming kunnen vallen.

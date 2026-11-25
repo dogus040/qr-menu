@@ -3,7 +3,45 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { onRequestGet as menuPage } from "../functions/index";
 import { onRequest as qrGone } from "../functions/qr";
+import { onRequest as middleware } from "../functions/_middleware";
 import { seed } from "./helpers";
+
+// Roept de middleware aan zoals Pages dat doet; next() = "gewoon doorgaan" (hier een herkenbaar antwoord).
+async function viaMiddleware(url: string) {
+  let passed = false;
+  const res = await middleware({
+    request: new Request(url),
+    next: async () => {
+      passed = true;
+      return new Response("doorgelaten");
+    }
+  } as unknown as Parameters<typeof middleware>[0]);
+  return { res, passed };
+}
+
+describe("oud adres bimola.pages.dev", () => {
+  it("stuurt permanent door naar menu.bimolakafe.com, met pad en parameters", async () => {
+    for (const [from, to] of [
+      ["https://bimola.pages.dev/", "https://menu.bimolakafe.com/"],
+      ["https://bimola.pages.dev/?bg=kahve", "https://menu.bimolakafe.com/?bg=kahve"],
+      ["https://bimola.pages.dev/yonetim", "https://menu.bimolakafe.com/yonetim"],
+      ["https://da6733e4.bimola.pages.dev/css/style.css", "https://menu.bimolakafe.com/css/style.css"]
+    ] as const) {
+      const { res, passed } = await viaMiddleware(from);
+      expect(res.status, from).toBe(301);
+      expect(res.headers.get("Location"), from).toBe(to);
+      expect(passed).toBe(false);
+    }
+  });
+
+  it("laat het eigen domein (en lokaal ontwikkelen) gewoon door", async () => {
+    for (const url of ["https://menu.bimolakafe.com/", "http://localhost:8788/", "https://evil-bimola.pages.dev.example.com/"]) {
+      const { res, passed } = await viaMiddleware(url);
+      expect(passed, url).toBe(true);
+      expect(await res.text()).toBe("doorgelaten");
+    }
+  });
+});
 
 const fakeAssets = (snapshot: unknown | null) =>
   ({
