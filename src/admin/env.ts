@@ -16,7 +16,7 @@ export interface AdminEnv {
   PUBLIC_MENU_URL?: string;
   /** Alleen tests: JWKS als JSON in plaats van ophalen bij het teamdomein. */
   ACCESS_JWKS_JSON?: string;
-  /** Alleen lokaal/tests: "d1" = witte lijst in tabel dev_admin_emails. */
+  /** Lokaal, tests en de testomgeving (admin-test): "d1" = witte lijst in tabel dev_admin_emails. */
   ACCESS_DIRECTORY?: string;
 }
 

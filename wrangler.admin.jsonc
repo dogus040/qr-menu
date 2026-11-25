@@ -37,5 +37,32 @@
     // Adres van de menukaart (QR-code, knop "Menüyü aç"): eigen domein, niet *.pages.dev (geblokkeerd in Turkije).
     "PUBLIC_MENU_URL": "https://menu.bimolakafe.com/"
   },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Testomgeving (Dogus, 2026-11-25): Worker "admin-test" op admin-test.bimolakafe.com met een eigen database
+  // en een eigen witte lijst (tabel dev_admin_emails), zodat testen nooit de echte Access-groep of menudata raakt.
+  // Uitrol: push naar branch "test" (CI, job deploy-test). Eenmalig geheim (Dogus):
+  //   npx wrangler secret put OWNER_EMAILS -c wrangler.admin.jsonc --env test
+  // Overgeërfd van boven: main, compatibility_date, workers_dev, preview_urls, assets, observability.
+  "env": {
+    "test": {
+      "name": "admin-test",
+      "routes": [{ "pattern": "admin-test.bimolakafe.com", "custom_domain": true }],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "bimola-test",
+          "database_id": "4eb33051-e786-4ae0-b32b-c0c0b6cf7d9e",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "vars": {
+        // Zelfde Access-app als productie (admin-test.bimolakafe.com staat daar ook in), dus dezelfde AUD.
+        "ACCESS_TEAM_DOMAIN": "tiny-smoke-594d.cloudflareaccess.com",
+        "ACCESS_AUD": "aa202ede8b72a2e77f03644d9db8d415b5064784a0edd594f7b1165f2e92e079",
+        // Geen ACCESS_ACCOUNT_ID/ACCESS_GROUP_ID: de witte lijst staat in de testdatabase, nooit in de echte Access-groep.
+        "ACCESS_DIRECTORY": "d1",
+        "PUBLIC_MENU_URL": "https://test.bimolakafe.com/"
+      }
+    }
+  }
 }

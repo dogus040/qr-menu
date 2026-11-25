@@ -1,5 +1,5 @@
 # Publieke menukaart: Cloudflare Pages-project "bimola", op https://menu.bimolakafe.com (eigen domein,
-# custom domain in het dashboard) en https://bimola.pages.dev (in Turkije geblokkeerd).
+# custom domain in het dashboard). https://bimola.pages.dev stuurt door naar het eigen domein (functions/_middleware.ts).
 # Statische bestanden uit ./public; de pagina / wordt door Pages Functions (map ./functions)
 # server-side opgebouwd uit D1. Dit project NOOIT verwijderen: de QR-codes wijzen hiernaartoe.
 name = "bimola"
@@ -12,3 +12,16 @@ binding = "DB"
 database_name = "bimola"
 database_id = "ef2c2e1c-33e3-4587-929d-405cd02819d6"
 migrations_dir = "migrations"
+
+# Testomgeving (Dogus, 2026-11-25): elke andere branch dan main is voor Pages een "preview".
+# Die gebruikt de testdatabase, nooit de echte menudata. Branch "test" draait op test.bimolakafe.com
+# (custom domain, CNAME naar test.bimola.pages.dev). Bindings en vars erven niet over: hier herhalen.
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "bimola-test"
+database_id = "4eb33051-e786-4ae0-b32b-c0c0b6cf7d9e"
+migrations_dir = "migrations"
+
+[env.preview.vars]
+# Niet doorsturen naar menu.bimolakafe.com (zie functions/_middleware.ts).
+PAGES_DEV_REDIRECT = "off"

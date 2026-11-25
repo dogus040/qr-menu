@@ -121,7 +121,10 @@ class AccessGroupDirectory implements Directory {
   }
 }
 
-/** Alleen lokaal/tests. */
+/**
+ * Lokaal, tests en de testomgeving (admin-test.bimolakafe.com). Daar houdt Access de poort nog steeds dicht
+ * met de echte groep; deze lijst kan alleen verder inperken, nooit iemand van buiten binnenlaten.
+ */
 class D1Directory implements Directory {
   constructor(private readonly db: D1Database) {}
   async list(): Promise<string[]> {

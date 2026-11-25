@@ -7,10 +7,12 @@ import { onRequest as middleware } from "../functions/_middleware";
 import { seed } from "./helpers";
 
 // Roept de middleware aan zoals Pages dat doet; next() = "gewoon doorgaan" (hier een herkenbaar antwoord).
-async function viaMiddleware(url: string) {
+// Standaard-env = productie (geen PAGES_DEV_REDIRECT).
+async function viaMiddleware(url: string, pagesEnv: Record<string, string> = {}) {
   let passed = false;
   const res = await middleware({
     request: new Request(url),
+    env: pagesEnv,
     next: async () => {
       passed = true;
       return new Response("doorgelaten");
@@ -40,6 +42,16 @@ describe("oud adres bimola.pages.dev", () => {
       expect(passed, url).toBe(true);
       expect(await res.text()).toBe("doorgelaten");
     }
+  });
+
+  it("stuurt de testomgeving (preview, PAGES_DEV_REDIRECT=off) niet door naar het echte menu", async () => {
+    for (const url of ["https://test.bimola.pages.dev/", "https://da6733e4.bimola.pages.dev/?bg=kahve", "https://test.bimolakafe.com/"]) {
+      const { res, passed } = await viaMiddleware(url, { PAGES_DEV_REDIRECT: "off" });
+      expect(passed, url).toBe(true);
+      expect(await res.text()).toBe("doorgelaten");
+    }
+    // Elke andere waarde telt als "aan": alleen precies "off" zet het uit.
+    expect((await viaMiddleware("https://bimola.pages.dev/", { PAGES_DEV_REDIRECT: "0" })).res.status).toBe(301);
   });
 });
 
