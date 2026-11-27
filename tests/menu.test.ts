@@ -4,7 +4,18 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { onRequestGet as menuPage } from "../functions/index";
 import { onRequest as qrGone } from "../functions/qr";
 import { onRequest as middleware } from "../functions/_middleware";
+import routesJson from "../public/_routes.json?raw";
 import { seed } from "./helpers";
+
+describe("_routes.json (welke verzoeken langs de code gaan)", () => {
+  it("alles behalve de statische bestanden: die zijn gratis en tellen niet mee voor de daglimiet", () => {
+    const routes = JSON.parse(routesJson) as { version: number; include: string[]; exclude: string[] };
+    expect(routes.version).toBe(1);
+    // "/" (menu), "/qr" (404) en de doorsturing van het oude adres moeten blijven werken.
+    expect(routes.include).toEqual(["/*"]);
+    expect(routes.exclude).toEqual(["/css/*", "/js/*", "/snapshot.json"]);
+  });
+});
 
 // Roept de middleware aan zoals Pages dat doet; next() = "gewoon doorgaan" (hier een herkenbaar antwoord).
 // Standaard-env = productie (geen PAGES_DEV_REDIRECT).

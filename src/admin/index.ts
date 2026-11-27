@@ -1,6 +1,7 @@
-// Beheer-Worker (admin, https://admin.bimolakafe.com en https://admin.bimola.workers.dev): JSON-API + beheerpagina, volledig achter Cloudflare Access.
+// Beheer-Worker (admin, https://admin.bimolakafe.com; test: admin-test.bimolakafe.com): JSON-API + beheerpagina,
+// volledig achter Cloudflare Access.
 import { Hono, type Context } from "hono";
-import { HttpError, type AdminEnv } from "./env";
+import { HttpError, type AdminEnv, type Limiter } from "./env";
 import { EMAIL_RE, MAX_ADMINS, allowedEmails, clearDirectoryCache, directory, isAllowed, ownerEmails, verifyAccess } from "./auth";
 import * as store from "./store";
 import { langOf, translate } from "./i18n";
@@ -40,11 +41,40 @@ app.use("*", async (c, next) => {
   c.res = res;
 });
 
+// Snelheidslimieten (Cloudflare Rate Limiting, per locatie, ongeveer): te veel verzoeken → 429.
+// Faalt de limiter zelf, dan gaat het verzoek door: beschikbaarheid boven een strenge telling.
+const TOO_MANY = "Çok fazla istek. Bir dakika bekleyip tekrar deneyin.";
+
+async function enforceLimit(limiter: Limiter | undefined, key: string): Promise<void> {
+  if (!limiter) return; // lokaal zonder binding
+  let success = true;
+  try {
+    ({ success } = await limiter.limit({ key }));
+  } catch (err) {
+    console.error("rate limiter", err);
+  }
+  if (!success) throw new HttpError(429, TOO_MANY);
+}
+
+// Per IP, vóór de login-controle. CF-Connecting-IP zet Cloudflare zelf (een bezoeker kan hem niet vervalsen).
+app.use("*", async (c, next) => {
+  await enforceLimit(c.env.RATE_LIMIT_IP, `ip:${c.req.header("CF-Connecting-IP") ?? "onbekend"}`);
+  await next();
+});
+
 // 1) Geldig Access-token, 2) e-mail op de witte lijst. Geldt voor álles, ook de pagina zelf.
 app.use("*", async (c, next) => {
   const email = await verifyAccess(c.req.raw, c.env);
   if (!(await isAllowed(c.env, email))) throw new HttpError(403, `Bu Google hesabının / e-posta adresinin erişim izni yok: ${email}`);
   c.set("email", email);
+  await next();
+});
+
+// Per account (het door Access gecontroleerde e-mailadres): alleen wijzigingen tellen.
+app.use("/api/*", async (c, next) => {
+  if (c.req.method !== "GET" && c.req.method !== "HEAD") {
+    await enforceLimit(c.env.RATE_LIMIT_ACCOUNT, `account:${c.get("email").toLowerCase()}`);
+  }
   await next();
 });
 
@@ -218,6 +248,8 @@ app.onError((err, c) => {
   if (status === 500 && !(err instanceof HttpError)) console.error(err);
   const lang = langOf(c.req.raw);
   const message = translate(err instanceof HttpError ? err.message : "Beklenmeyen bir hata oluştu.", lang);
+  // De limieten tellen per minuut.
+  if (status === 429) c.header("Retry-After", "60");
   if (new URL(c.req.url).pathname.startsWith("/api/")) return c.json({ error: message }, status);
   const title = lang === "en" ? "Bi Mola · Admin" : "Bi Mola · Yönetim";
   const other = lang === "en" ? "Log in with another account" : "Başka hesapla giriş yap";

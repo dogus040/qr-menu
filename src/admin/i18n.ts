@@ -14,6 +14,7 @@ const EN: Record<string, string> = {
   "Beheer is nog niet ingesteld (Access).": "The admin page is not configured yet (Access).",
   "Cloudflare Access is nu niet bereikbaar. Probeer het opnieuw.": "Cloudflare Access cannot be reached right now. Try again.",
   "İstek reddedildi.": "Request refused.",
+  "Çok fazla istek. Bir dakika bekleyip tekrar deneyin.": "Too many requests. Wait a minute and try again.",
   "Geçersiz istek.": "Invalid request.",
   "Geçersiz numara.": "Invalid number.",
   "Bulunamadı.": "Not found.",

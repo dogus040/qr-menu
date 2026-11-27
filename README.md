@@ -30,6 +30,11 @@ Gast ──► menu.bimolakafe.com ──(alleen lezen)──► D1 ◄──(le
 - **Witte lijst**: de Access-groep "Bi Mola beheerders" (`ACCESS_GROUP_ID`); beheerders passen die aan in het tabblad **Erişim**. De eigenaar (`OWNER_EMAILS`) mag er altijd in en kan niet worden verwijderd.
 - **Wijzigingen**: elke wijziging is één D1-transactie met een logregel (wie, wanneer, voor/na). Tabblad **Geçmiş** toont de log met **Geri al** (terugdraaien) en de prullenbak. Twee mensen tegelijk: wie met een verouderde versie opslaat krijgt een melding in plaats van het werk van de ander te overschrijven.
 - **Bedragen** staan als hele kuruş in de database (180 TL = 18000).
+- **Snelheidslimieten** (2026-11-27):
+  - Beheer (`ratelimits` in `wrangler.admin.jsonc`): per IP 300 verzoeken per minuut (vóór de login-controle), per account (Access-e-mail) 60 wijzigingen per minuut. Daarboven 429 met `Retry-After: 60`. De Cloudflare-limiter telt per locatie en ongeveer; valt hij uit, dan gaat het verzoek door. Test heeft eigen tellers (`namespace_id` 2001/2002).
+  - Hele domein: Cloudflare-regel (Security → WAF → Rate limiting rules, gratis: 1 regel, alleen per IP): meer dan 100 verzoeken per 10 seconden vanaf één IP → 10 seconden geblokkeerd.
+  - Geen "apparaat-ID" voor gasten: dat zou een cookie zijn die een aanvaller gewoon weglaat of vernieuwt. Het account (door Access gecontroleerd) is de ID in het beheer.
+- **Daglimiet**: het gratis plan staat 100.000 verzoeken per dag toe voor alle code (menu + beheer), daarna foutpagina's tot 00:00 UTC (03:00 Istanbul), nooit een rekening. `public/_routes.json` houdt CSS, JavaScript en `snapshot.json` buiten de code (gratis en onbeperkt), zodat een menubezoek 1 verzoek kost in plaats van 3. Gevolg: `bimola.pages.dev/css/…` stuurt niet door (onschadelijk).
 
 ## Menu bewerken
 

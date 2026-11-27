@@ -37,6 +37,12 @@
     // Adres van de menukaart (QR-code, knop "Menüyü aç"): eigen domein, niet *.pages.dev (geblokkeerd in Turkije).
     "PUBLIC_MENU_URL": "https://menu.bimolakafe.com/"
   },
+  // Snelheidslimieten (Dogus, 2026-11-27), per minuut: per IP 300 verzoeken (alles), per account 60 wijzigingen.
+  // namespace_id geldt voor het hele Cloudflare-account: de test heeft eigen nummers, dus eigen tellers.
+  "ratelimits": [
+    { "name": "RATE_LIMIT_IP", "namespace_id": "1001", "simple": { "limit": 300, "period": 60 } },
+    { "name": "RATE_LIMIT_ACCOUNT", "namespace_id": "1002", "simple": { "limit": 60, "period": 60 } }
+  ],
   "observability": { "enabled": true },
   // Testomgeving (Dogus, 2026-11-25): Worker "admin-test" op admin-test.bimolakafe.com met een eigen database
   // en een eigen witte lijst (tabel dev_admin_emails), zodat testen nooit de echte Access-groep of menudata raakt.
@@ -54,6 +60,10 @@
           "database_id": "4eb33051-e786-4ae0-b32b-c0c0b6cf7d9e",
           "migrations_dir": "migrations"
         }
+      ],
+      "ratelimits": [
+        { "name": "RATE_LIMIT_IP", "namespace_id": "2001", "simple": { "limit": 300, "period": 60 } },
+        { "name": "RATE_LIMIT_ACCOUNT", "namespace_id": "2002", "simple": { "limit": 60, "period": 60 } }
       ],
       "vars": {
         // Zelfde Access-app als productie (admin-test.bimolakafe.com staat daar ook in), dus dezelfde AUD.

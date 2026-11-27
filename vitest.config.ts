@@ -26,6 +26,11 @@ export default defineConfig(async () => {
             OWNER_EMAILS: "owner@example.com",
             // Vast zetten: anders wint een lokale .dev.vars.
             PUBLIC_MENU_URL: "https://menu.bimolakafe.com/"
+          },
+          // Alle tests samen doen honderden verzoeken: limieten hier ruim. tests/ratelimit.test.ts test de limieten zelf.
+          ratelimits: {
+            RATE_LIMIT_IP: { namespace_id: "9001", simple: { limit: 100000, period: 60 } },
+            RATE_LIMIT_ACCOUNT: { namespace_id: "9002", simple: { limit: 100000, period: 60 } }
           }
         }
       })
