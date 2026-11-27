@@ -11,7 +11,7 @@ Turkse digitale menukaart (kraft-stijl) voor Bi Mola, met een beheerpagina voor 
 
 **Waarom een eigen domein:** in Turkije zijn `*.pages.dev` en `*.workers.dev` als geheel geblokkeerd (sinds november 2025, opnieuw gemeld augustus 2026). `bimolakafe.com` en `www.bimolakafe.com` sturen door naar het menu.
 
-**Oude adressen (opgeruimd 2026-11-25):** `admin.bimola.workers.dev` staat uit (`"workers_dev": false` in `wrangler.admin.jsonc`). `bimola.pages.dev` kan niet weg (het hoort vast bij het Pages-project), dus `functions/_middleware.ts` stuurt het, en de versie-adressen `<code>.bimola.pages.dev`, permanent (301) door naar `https://menu.bimolakafe.com` met pad en parameters.
+**Oude adressen (opgeruimd 2026-11-25):** `admin.bimola.workers.dev` staat uit (`"workers_dev": false` in `wrangler.admin.jsonc`). `bimola.pages.dev` kan niet weg (het hoort vast bij het Pages-project), dus `functions/_middleware.ts` stuurt het, en de versie-adressen `<code>.bimola.pages.dev`, permanent (301) door naar `https://menu.bimolakafe.com` met pad en parameters (niet in de testomgeving, zie hieronder).
 
 **Domein:** `bimolakafe.com`, gekocht via Cloudflare Registrar op 2026-11-19, verloopt 2027-11-19, automatisch verlengen aan. Laat het nooit verlopen: dan werken de QR-kaartjes niet meer.
 
@@ -63,9 +63,31 @@ Databasewijzigingen alleen via een nieuw bestand in `migrations/` (nooit oude mi
 
 ## Uitrollen
 
+Altijd eerst naar de **testomgeving** (hieronder); pas na controle daar naar `main`. Een push naar `main` is meteen live.
+
 - **Menukaart**: elke push naar `main` → Cloudflare Pages bouwt automatisch.
 - **Beheer + migraties**: GitHub Actions (`.github/workflows/ci.yml`) na groene tests op `main`. Secrets in GitHub: `CLOUDFLARE_API_TOKEN` (Workers Scripts: Edit, D1: Edit), `CLOUDFLARE_ACCOUNT_ID`.
 - Geheimen van de beheer-Worker (eenmalig): `npx wrangler secret put OWNER_EMAILS -c wrangler.admin.jsonc` en `npx wrangler secret put CF_API_TOKEN -c wrangler.admin.jsonc` (account-token met alleen "Access: Groups" Read + Edit).
+
+## Testomgeving
+
+Opgezet 2026-11-25 (Dogus: eerst testen, dan live). Gratis, zelfde Cloudflare-account.
+
+| Onderdeel | Adres | Waar |
+|---|---|---|
+| Menukaart (test) | `https://test.bimolakafe.com/` | Pages-preview van branch `test` (custom domain, CNAME → `test.bimola.pages.dev`) |
+| Beheer (test) | `https://admin-test.bimolakafe.com/` | Worker `admin-test` (`env.test` in `wrangler.admin.jsonc`), achter dezelfde Access-app als het echte beheer |
+| Data (test) | – | D1 `bimola-test`: kopie van het echte menu (instellingen, categorieën, producten) |
+
+- **Werkwijze**: wijziging op branch `test` committen en pushen → CI (tests, migraties op `bimola-test`, Worker `admin-test`) en Pages (preview) rollen uit. Controleren op de testadressen. Goed? Dan `test` in `main` mergen en pushen (live).
+- **Wat anders is dan live**:
+  - eigen database: wat je in het testbeheer wijzigt, raakt het echte menu niet;
+  - witte lijst in de testdatabase (tabel `dev_admin_emails`, tab Erişim) in plaats van de Access-groep. Access laat nog steeds alleen de echte beheerders (groep + eigenaar) door, dus de testlijst kan alleen inperken;
+  - `PAGES_DEV_REDIRECT = "off"` (`wrangler.toml`, `[env.preview]`): de test-uitrol stuurt niet door naar het echte menu. Elke andere branch dan `main` gebruikt voor Pages ook de testdatabase.
+- **QR-tab in de test** wijst naar `https://test.bimolakafe.com/`: nooit kaartjes uit de testomgeving printen.
+- **Testdata verversen** met een kopie van live: per tabel `npx wrangler d1 export bimola --remote --table <settings|categories|items> --no-schema --output <bestand>.sql -c wrangler.admin.jsonc`; in de testdatabase eerst `DELETE FROM items; DELETE FROM categories; DELETE FROM settings;`, daarna de bestanden (settings, categories, items) uitvoeren met `npx wrangler d1 execute bimola-test --remote --env test -c wrangler.admin.jsonc --file <bestand>.sql`.
+- **Eenmalig (Dogus)**: `npx wrangler secret put OWNER_EMAILS -c wrangler.admin.jsonc --env test`.
+- **Dashboard (gedaan)**: Pages → `bimola` → Custom domains → `test.bimolakafe.com`, daarna in DNS het CNAME-doel veranderd van `bimola.pages.dev` naar `test.bimola.pages.dev` (anders toont het adres het live menu); in Zero Trust → Access → app "bimola-admin - Cloudflare Workers" de hostname `admin-test.bimolakafe.com` toegevoegd (zelfde AUD, dus geen nieuwe app).
 
 ## Backup en herstel
 
